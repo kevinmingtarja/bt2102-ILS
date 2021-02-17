@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2021-02-17T07:43:43.123Z" agent="5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.96 Safari/537.36" etag="-u4y_5rk_t0qjZYdSDpT" version="14.3.2" type="github" pages="3">
+<mxfile host="app.diagrams.net" modified="2021-02-17T07:43:54.107Z" agent="5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.96 Safari/537.36" etag="qglVGPYq-wF_v68QrDTY" version="14.3.2" type="github" pages="3">
   <diagram id="7yjsdwkE0pjcYwVuFHQ9" name="Page-3">
     <mxGraphModel dx="1351" dy="790" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
       <root>
@@ -144,7 +144,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="MKsPbaf4J4Z8LF9F175A-6" value="Returns" style="rhombus;whiteSpace=wrap;html=1;" parent="kls0ujeYb6ur-3lqEu9t-1" vertex="1">
-          <mxGeometry x="480" y="560" width="110" height="50" as="geometry" />
+          <mxGeometry x="485" y="470" width="110" height="50" as="geometry" />
         </mxCell>
         <mxCell id="EobnwcYombwNEFj64KlC-2" value="N" style="resizable=0;html=1;align=right;verticalAlign=bottom;" connectable="0" vertex="1" parent="kls0ujeYb6ur-3lqEu9t-1">
           <mxGeometry x="619.6902772115182" y="469.1667738091826" as="geometry">
@@ -157,13 +157,13 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="Yc1H0NNU_rApJqrL4BW1-1" value="Fine" style="shape=ext;margin=3;double=1;whiteSpace=wrap;html=1;align=center;" vertex="1" parent="kls0ujeYb6ur-3lqEu9t-1">
-          <mxGeometry x="500" y="640" width="100" height="40" as="geometry" />
+          <mxGeometry x="500" y="570" width="100" height="40" as="geometry" />
         </mxCell>
         <mxCell id="LuAxhE2_kgfvLFDBgdY--0" value="booksBorrowed" style="ellipse;whiteSpace=wrap;html=1;align=center;" vertex="1" parent="kls0ujeYb6ur-3lqEu9t-1">
           <mxGeometry x="130" y="348.45" width="130" height="45" as="geometry" />
         </mxCell>
         <mxCell id="Yc1H0NNU_rApJqrL4BW1-4" value="Pays" style="shape=rhombus;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;" vertex="1" parent="kls0ujeYb6ur-3lqEu9t-1">
-          <mxGeometry x="270" y="520" width="120" height="60" as="geometry" />
+          <mxGeometry x="320" y="470" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="LuAxhE2_kgfvLFDBgdY--1" value="" style="endArrow=none;html=1;exitX=1;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="kls0ujeYb6ur-3lqEu9t-1" source="LuAxhE2_kgfvLFDBgdY--0">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
@@ -199,7 +199,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="Yc1H0NNU_rApJqrL4BW1-11" value="Overdue Charges" style="shape=rhombus;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;" vertex="1" parent="kls0ujeYb6ur-3lqEu9t-1">
-          <mxGeometry x="690" y="480" width="120" height="60" as="geometry" />
+          <mxGeometry x="660" y="470" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="Yc1H0NNU_rApJqrL4BW1-12" value="" style="endArrow=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="kls0ujeYb6ur-3lqEu9t-1" source="Yc1H0NNU_rApJqrL4BW1-1" target="Yc1H0NNU_rApJqrL4BW1-11">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
