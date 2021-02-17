@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
+import useScrollTrigger from "@material-ui/core/useScrollTrigger";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import { NavMenu, NavItem } from "@mui-treasury/components/menu/navigation";
@@ -14,6 +15,7 @@ const useStyles = makeStyles((theme) => ({
     navbar: {
         backgroundColor: "white",
         color: theme.palette.primary.main,
+        position: "fixed",
     },
     container: {
         display: "grid",
@@ -28,45 +30,65 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function Navbar() {
+function ElevationScroll(props) {
+    const { children, window } = props;
+    // Note that you normally won't need to set the window ref as useScrollTrigger
+    // will default to window.
+    // This is only being set here because the demo is in an iframe.
+    const trigger = useScrollTrigger({
+        disableHysteresis: true,
+        threshold: 0,
+        target: window ? window() : undefined,
+    });
+
+    return React.cloneElement(children, {
+        elevation: trigger ? 4 : 0,
+    });
+}
+
+export default function Navbar(props) {
     const classes = useStyles();
     const styles = useFirebaseBtnStyles();
     const gutterStyles = usePushingGutterStyles();
 
     return (
         <div className={classes.root}>
-            <AppBar position="static" className={classes.navbar}>
-                <Toolbar className={classes.container}>
-                    <Typography variant="h3">LOGO</Typography>
-                    <Box height={48} display={"flex"}>
-                        <NavMenu useStyles={useLineNavigationMenuStyles}>
-                            <NavItem active>
-                                <Typography variant="h6">Library</Typography>
-                            </NavItem>
-                            <NavItem>
-                                <Typography variant="h6">
-                                    Borrow a Book
-                                </Typography>
-                            </NavItem>
-                            <NavItem>
-                                <Typography variant="h6">
-                                    Reservation
-                                </Typography>
-                            </NavItem>
-                        </NavMenu>
-                    </Box>
-                    <div className={gutterStyles.parent}>
-                        <Button classes={styles}>Login</Button>
-                        <Button
-                            classes={styles}
-                            variant={"contained"}
-                            color={"primary"}
-                        >
-                            Register
-                        </Button>
-                    </div>
-                </Toolbar>
-            </AppBar>
+            <ElevationScroll {...props}>
+                <AppBar position="static" className={classes.navbar}>
+                    <Toolbar className={classes.container}>
+                        <Typography variant="h3">LOGO</Typography>
+                        <Box height={48} display={"flex"}>
+                            <NavMenu useStyles={useLineNavigationMenuStyles}>
+                                <NavItem active>
+                                    <Typography variant="h6">
+                                        Library
+                                    </Typography>
+                                </NavItem>
+                                <NavItem>
+                                    <Typography variant="h6">
+                                        Borrow a Book
+                                    </Typography>
+                                </NavItem>
+                                <NavItem>
+                                    <Typography variant="h6">
+                                        Reservation
+                                    </Typography>
+                                </NavItem>
+                            </NavMenu>
+                        </Box>
+                        <div className={gutterStyles.parent}>
+                            <Button classes={styles}>Login</Button>
+                            <Button
+                                classes={styles}
+                                variant={"contained"}
+                                color={"primary"}
+                            >
+                                Register
+                            </Button>
+                        </div>
+                    </Toolbar>
+                </AppBar>
+            </ElevationScroll>
         </div>
     );
 }
