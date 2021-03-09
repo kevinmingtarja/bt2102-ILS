@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
 import AppBar from "@material-ui/core/AppBar";
@@ -56,20 +57,51 @@ export default function Navbar(props) {
             <ElevationScroll {...props}>
                 <AppBar position="static" className={classes.navbar}>
                     <Toolbar className={classes.container}>
-                        <Typography variant="h3">LOGO</Typography>
+                        <Link
+                            to="/"
+                            style={{
+                                textDecoration: "none",
+                                color: "#2176ff",
+                            }}
+                        >
+                            <Typography variant="h3">LOGO</Typography>
+                        </Link>
                         <Box height={48} display={"flex"}>
                             <NavMenu useStyles={useLineNavigationMenuStyles}>
-                                <NavItem active>
-                                    <Typography variant="h6">
-                                        Library
-                                    </Typography>
-                                </NavItem>
-                                <NavItem>
+                                <Link
+                                    to="/library"
+                                    style={{
+                                        textDecoration: "none",
+                                    }}
+                                >
+                                    <NavItem
+                                        active={
+                                            props.active == "library"
+                                                ? true
+                                                : false
+                                        }
+                                    >
+                                        <Typography variant="h6">
+                                            Library
+                                        </Typography>
+                                    </NavItem>
+                                </Link>
+                                <NavItem
+                                    active={
+                                        props.active == "borrow" ? true : false
+                                    }
+                                >
                                     <Typography variant="h6">
                                         Borrow a Book
                                     </Typography>
                                 </NavItem>
-                                <NavItem>
+                                <NavItem
+                                    active={
+                                        props.active == "reservation"
+                                            ? true
+                                            : false
+                                    }
+                                >
                                     <Typography variant="h6">
                                         Reservation
                                     </Typography>
@@ -77,14 +109,28 @@ export default function Navbar(props) {
                             </NavMenu>
                         </Box>
                         <div className={gutterStyles.parent}>
-                            <Button classes={styles}>Login</Button>
-                            <Button
-                                classes={styles}
-                                variant={"contained"}
-                                color={"primary"}
+                            <Link
+                                to="/login"
+                                style={{
+                                    textDecoration: "none",
+                                }}
                             >
-                                Register
-                            </Button>
+                                <Button classes={styles}>Login</Button>
+                            </Link>
+                            <Link
+                                to="/register"
+                                style={{
+                                    textDecoration: "none",
+                                }}
+                            >
+                                <Button
+                                    classes={styles}
+                                    variant={"contained"}
+                                    color={"primary"}
+                                >
+                                    Register
+                                </Button>
+                            </Link>
                         </div>
                     </Toolbar>
                 </AppBar>

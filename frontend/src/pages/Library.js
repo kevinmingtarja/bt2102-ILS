@@ -21,7 +21,7 @@ export default function Library() {
     return (
         <React.Fragment>
             <CssBaseline />
-            <Navbar />
+            <Navbar active="library" />
             <SearchBar />
             <main>
                 <Container maxWidth="false" className={classes.container}>

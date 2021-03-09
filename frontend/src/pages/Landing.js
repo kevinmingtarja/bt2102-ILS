@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { Container, Typography, Button, Box } from "@material-ui/core";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
@@ -52,17 +53,19 @@ export default function Landing() {
                             elit.
                         </Typography>
                     </Box>
-                    <RoundedButton
-                        variant="contained"
-                        color="primary"
-                        href="#"
-                        onClick={() => {
-                            alert("clicked");
-                        }}
-                        size="large"
+                    <Link
+                        to="/library"
+                        style={{ textDecoration: "none", color: "white" }}
                     >
-                        Browse Books
-                    </RoundedButton>
+                        <RoundedButton
+                            variant="contained"
+                            color="primary"
+                            href="#"
+                            size="large"
+                        >
+                            Browse Books
+                        </RoundedButton>
+                    </Link>
                 </Box>
             </Grid>
             <Grid item xs={6} className={classes.right}>
