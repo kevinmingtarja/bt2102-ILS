@@ -1,13 +1,13 @@
-<mxfile host="app.diagrams.net" modified="2021-03-10T07:33:15.352Z" agent="5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36" etag="3Fp1YjMY-c7IsXzAdAtE" version="14.4.6" type="github" pages="3">
+<mxfile host="app.diagrams.net" modified="2021-03-10T07:46:19.285Z" agent="5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36" etag="cjD8KZSc7fTvQJFdsMAt" version="14.4.6" type="github" pages="3">
   <diagram id="7yjsdwkE0pjcYwVuFHQ9" name="Page-3">
     <mxGraphModel dx="928" dy="560" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
       <root>
         <mxCell id="kls0ujeYb6ur-3lqEu9t-0" />
         <mxCell id="kls0ujeYb6ur-3lqEu9t-1" parent="kls0ujeYb6ur-3lqEu9t-0" />
-        <mxCell id="kls0ujeYb6ur-3lqEu9t-2" value="MemberUser" style="whiteSpace=wrap;html=1;align=center;" parent="kls0ujeYb6ur-3lqEu9t-1" vertex="1">
+        <mxCell id="kls0ujeYb6ur-3lqEu9t-2" value="MemberUser" style="whiteSpace=wrap;html=1;align=center;strokeWidth=2;" parent="kls0ujeYb6ur-3lqEu9t-1" vertex="1">
           <mxGeometry x="342" y="370" width="100" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="kls0ujeYb6ur-3lqEu9t-3" value="Book" style="whiteSpace=wrap;html=1;align=center;" parent="kls0ujeYb6ur-3lqEu9t-1" vertex="1">
+        <mxCell id="kls0ujeYb6ur-3lqEu9t-3" value="Book" style="whiteSpace=wrap;html=1;align=center;strokeWidth=2;" parent="kls0ujeYb6ur-3lqEu9t-1" vertex="1">
           <mxGeometry x="732" y="370" width="100" height="40" as="geometry" />
         </mxCell>
         <mxCell id="kls0ujeYb6ur-3lqEu9t-4" value="Borrows" style="shape=rhombus;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;" parent="kls0ujeYb6ur-3lqEu9t-1" vertex="1">
@@ -128,7 +128,7 @@
             <mxPoint x="-11" y="116" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="Yc1H0NNU_rApJqrL4BW1-1" value="Fine" style="shape=ext;margin=3;double=1;whiteSpace=wrap;html=1;align=center;" parent="kls0ujeYb6ur-3lqEu9t-1" vertex="1">
+        <mxCell id="Yc1H0NNU_rApJqrL4BW1-1" value="Fine" style="shape=ext;margin=3;double=1;whiteSpace=wrap;html=1;align=center;strokeWidth=2;" parent="kls0ujeYb6ur-3lqEu9t-1" vertex="1">
           <mxGeometry x="332" y="570" width="100" height="40" as="geometry" />
         </mxCell>
         <mxCell id="LuAxhE2_kgfvLFDBgdY--0" value="booksBorrowed" style="ellipse;whiteSpace=wrap;html=1;align=center;" parent="kls0ujeYb6ur-3lqEu9t-1" vertex="1">
@@ -191,7 +191,7 @@
             <mxPoint x="552" y="220" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="9U8KDDrUURp2yVEStr0e-0" value="Administrative User" style="whiteSpace=wrap;html=1;align=center;" parent="kls0ujeYb6ur-3lqEu9t-1" vertex="1">
+        <mxCell id="9U8KDDrUURp2yVEStr0e-0" value="Administrative User" style="whiteSpace=wrap;html=1;align=center;strokeWidth=2;" parent="kls0ujeYb6ur-3lqEu9t-1" vertex="1">
           <mxGeometry x="322" y="140" width="100" height="40" as="geometry" />
         </mxCell>
         <mxCell id="9U8KDDrUURp2yVEStr0e-1" value="UserID" style="ellipse;whiteSpace=wrap;html=1;align=center;fontStyle=4;" parent="kls0ujeYb6ur-3lqEu9t-1" vertex="1">
