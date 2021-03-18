@@ -1,15 +1,13 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import books from "./Books";
-import BookCard from "../components/BookCard";
-import Grid from "@material-ui/core/Grid";
+import Box from "@material-ui/core/Box";
+import { NavMenu, NavItem } from "@mui-treasury/components/menu/navigation";
+import { useLineNavigationMenuStyles } from "@mui-treasury/styles/navigationMenu/line";
 import { makeStyles } from "@material-ui/core/styles";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import BookList from "../components/BookList";
 
-import AdvancedSearch from "../components/AdvancedSearch";
-import SearchBar from "../components/SearchBar";
-import Navbar from "../components/Navbar.js";
 import {
     Container,
     CssBaseline,
@@ -20,7 +18,6 @@ import {
 const useStyles = makeStyles({
     container: {
         display: "grid",
-        gridTemplateRows: "50% 50%",
         paddingTop: "100px",
         height: "90vh",
     },
@@ -34,20 +31,48 @@ const useStyles = makeStyles({
     },
 });
 
-export default function Profile() {
+export default function Profile(props) {
     const classes = useStyles();
     return (
         <React.Fragment>
             <CssBaseline />
-            <Navbar />
             <main>
                 <Container maxWidth="md" className={classes.container}>
                     <CardContent className={classes.profile}>
                         <AccountCircleIcon className={classes.icon} />
                         <CardContent className={classes.info}>
-                            <Typography variant="h4">Username</Typography>
+                            <Typography variant="h4">
+                                {props.username}
+                            </Typography>
                         </CardContent>
                     </CardContent>
+                    <Box height={48} display={"flex"} justifyContent="center">
+                        <NavMenu useStyles={useLineNavigationMenuStyles}>
+                            <NavItem
+                                active={
+                                    props.active == "library" ? true : false
+                                }
+                            >
+                                <Typography variant="h6">
+                                    Borrowed Books
+                                </Typography>
+                            </NavItem>
+                            <NavItem
+                                active={props.active == "borrow" ? true : false}
+                            >
+                                <Typography variant="h6">
+                                    Reserved Books
+                                </Typography>
+                            </NavItem>
+                            <NavItem
+                                active={
+                                    props.active == "reservation" ? true : false
+                                }
+                            >
+                                <Typography variant="h6">Fines</Typography>
+                            </NavItem>
+                        </NavMenu>
+                    </Box>
                     <CardContent className={classes.books}>
                         {books.map((book) => {
                             return <BookList book={book} />;

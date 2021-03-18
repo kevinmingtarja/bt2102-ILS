@@ -47,7 +47,6 @@ export default function BookPage({ match, location }) {
     return (
         <React.Fragment>
             <CssBaseline />
-            <Navbar active="library" />
             <main>
                 <Container maxWidth="md" className={classes.container}>
                     <CardContent className={classes.book}>

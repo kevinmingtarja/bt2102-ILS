@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import books from "./Books";
 import BookCard from "../components/BookCard";
@@ -17,12 +17,16 @@ const useStyles = makeStyles({
     },
 });
 
-export default function Library() {
+export default function Library(props) {
     const classes = useStyles();
+
+    useEffect(() => {
+        props.setActive("library");
+    });
+
     return (
         <React.Fragment>
             <CssBaseline />
-            <Navbar active="library" />
             <SearchBar />
             <main>
                 <Container maxWidth="false" className={classes.container}>

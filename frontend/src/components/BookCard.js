@@ -28,7 +28,6 @@ const useStyles = makeStyles({
 
 export default function BookCard(props) {
     const classes = useStyles();
-    console.log(props.url);
     return (
         <Card className={classes.root} elevation="0">
             <img src={props.url} alt="Book Cover" className={classes.cover} />

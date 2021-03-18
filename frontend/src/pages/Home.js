@@ -19,7 +19,6 @@ export default function Home() {
     return (
         <React.Fragment>
             <CssBaseline />
-            <Navbar />
             <main>
                 <Landing />
                 <Features />

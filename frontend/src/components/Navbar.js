@@ -63,6 +63,7 @@ export default function Navbar(props) {
                                 textDecoration: "none",
                                 color: "#2176ff",
                             }}
+                            onClick={() => props.setActive("")}
                         >
                             <Typography variant="h3">LOGO</Typography>
                         </Link>
@@ -108,30 +109,60 @@ export default function Navbar(props) {
                                 </NavItem>
                             </NavMenu>
                         </Box>
-                        <div className={gutterStyles.parent}>
-                            <Link
-                                to="/login"
-                                style={{
-                                    textDecoration: "none",
-                                }}
-                            >
-                                <Button classes={styles}>Login</Button>
-                            </Link>
-                            <Link
-                                to="/register"
-                                style={{
-                                    textDecoration: "none",
-                                }}
-                            >
-                                <Button
-                                    classes={styles}
-                                    variant={"contained"}
-                                    color={"primary"}
+                        {!props.isLoggedIn ? (
+                            <div className={gutterStyles.parent}>
+                                <Link
+                                    to="/login"
+                                    style={{
+                                        textDecoration: "none",
+                                    }}
                                 >
-                                    Register
-                                </Button>
-                            </Link>
-                        </div>
+                                    <Button classes={styles}>Login</Button>
+                                </Link>
+                                <Link
+                                    to="/register"
+                                    style={{
+                                        textDecoration: "none",
+                                    }}
+                                >
+                                    <Button
+                                        classes={styles}
+                                        variant={"contained"}
+                                        color={"primary"}
+                                    >
+                                        Register
+                                    </Button>
+                                </Link>
+                            </div>
+                        ) : (
+                            <div className={gutterStyles.parent}>
+                                <Link
+                                    to="/profile"
+                                    style={{
+                                        textDecoration: "none",
+                                    }}
+                                >
+                                    <Button classes={styles}>
+                                        {props.username}
+                                    </Button>
+                                </Link>
+                                <Link
+                                    to="/"
+                                    style={{
+                                        textDecoration: "none",
+                                    }}
+                                >
+                                    <Button
+                                        classes={styles}
+                                        variant={"contained"}
+                                        color={"primary"}
+                                        onClick={() => props.handleLogout()}
+                                    >
+                                        Sign Out
+                                    </Button>
+                                </Link>
+                            </div>
+                        )}
                     </Toolbar>
                 </AppBar>
             </ElevationScroll>
