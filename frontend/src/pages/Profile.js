@@ -6,7 +6,8 @@ import { NavMenu, NavItem } from "@mui-treasury/components/menu/navigation";
 import { useLineNavigationMenuStyles } from "@mui-treasury/styles/navigationMenu/line";
 import { makeStyles } from "@material-ui/core/styles";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import BookList from "../components/BookList";
+import BorrowedBookList from "../components/BorrowedBookList";
+import ReservedBookList from "../components/ReservedBookList";
 
 import {
     Container,
@@ -92,7 +93,11 @@ export default function Profile(props) {
                     </Box>
                     <CardContent className={classes.books}>
                         {data.map((book) => {
-                            return <BookList book={book} />;
+                            if (active == "Borrowed") {
+                                return <BorrowedBookList book={book} />;
+                            } else if (active == "Reserved") {
+                                return <ReservedBookList book={book} />;
+                            }
                         })}
                     </CardContent>
                 </Container>
