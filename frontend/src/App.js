@@ -6,6 +6,7 @@ import Library from "./pages/Library";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import BookPage from "./pages/BookPage";
+import Payment from "./pages/Payment";
 import Profile from "./pages/Profile";
 import { useAlert } from "react-alert";
 import Navbar from "./components/Navbar";
@@ -104,6 +105,7 @@ function App(props) {
                 handleLogout={handleLogout}
             />
             <Switch>
+                <Route path="/payment" component={Payment} />
                 <Route
                     path="/library"
                     render={(props) => (

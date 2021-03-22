@@ -33,6 +33,24 @@ const useStyles = makeStyles({
 
 export default function Profile(props) {
     const classes = useStyles();
+    const [data, setData] = useState(books);
+    const [active, setActive] = useState("Borrowed");
+
+    const handleChangeData = (newType) => {
+        setActive(newType);
+        if (newType == active) {
+            return;
+        }
+
+        if (newType == "Borrowed") {
+            // Fetch data of books
+        } else if (newType == "Reserved") {
+            // Fetch data of reserved books
+        } else {
+            // Fetch fine data
+        }
+    };
+
     return (
         <React.Fragment>
             <CssBaseline />
@@ -49,32 +67,31 @@ export default function Profile(props) {
                     <Box height={48} display={"flex"} justifyContent="center">
                         <NavMenu useStyles={useLineNavigationMenuStyles}>
                             <NavItem
-                                active={
-                                    props.active == "library" ? true : false
-                                }
+                                active={active == "Borrowed" ? true : false}
+                                onClick={() => handleChangeData("Borrowed")}
                             >
                                 <Typography variant="h6">
                                     Borrowed Books
                                 </Typography>
                             </NavItem>
                             <NavItem
-                                active={props.active == "borrow" ? true : false}
+                                active={active == "Reserved" ? true : false}
+                                onClick={() => handleChangeData("Reserved")}
                             >
                                 <Typography variant="h6">
                                     Reserved Books
                                 </Typography>
                             </NavItem>
                             <NavItem
-                                active={
-                                    props.active == "reservation" ? true : false
-                                }
+                                active={active == "Fines" ? true : false}
+                                onClick={() => handleChangeData("Fines")}
                             >
                                 <Typography variant="h6">Fines</Typography>
                             </NavItem>
                         </NavMenu>
                     </Box>
                     <CardContent className={classes.books}>
-                        {books.map((book) => {
+                        {data.map((book) => {
                             return <BookList book={book} />;
                         })}
                     </CardContent>
