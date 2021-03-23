@@ -93,6 +93,7 @@ function App(props) {
         localStorage.removeItem("token");
         setIsLoggedIn(false);
         setUsername("");
+        alert.show("Logged Out");
     };
 
     return (

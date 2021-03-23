@@ -89,22 +89,22 @@ export default function Navbar(props) {
                                 </Link>
                                 <NavItem
                                     active={
-                                        props.active == "borrow" ? true : false
+                                        props.active == "about" ? true : false
                                     }
                                 >
                                     <Typography variant="h6">
-                                        Borrow a Book
+                                        About Us
                                     </Typography>
                                 </NavItem>
                                 <NavItem
                                     active={
-                                        props.active == "reservation"
+                                        props.active == "facilities"
                                             ? true
                                             : false
                                     }
                                 >
                                     <Typography variant="h6">
-                                        Reservation
+                                        Facilities
                                     </Typography>
                                 </NavItem>
                             </NavMenu>
