@@ -28,6 +28,7 @@ const useStyles = makeStyles({
 
 export default function BookCard(props) {
     const classes = useStyles();
+
     return (
         <Card className={classes.root} elevation="0">
             <img src={props.url} alt="Book Cover" className={classes.cover} />
@@ -40,7 +41,7 @@ export default function BookCard(props) {
                     align="left"
                     color="textSecondary"
                 >
-                    {props.author[0]}
+                    {props.author.replace(/[\[\]']+/g, "")}
                 </Typography>
             </CardContent>
         </Card>

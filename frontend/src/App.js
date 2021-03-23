@@ -16,10 +16,11 @@ function App(props) {
         localStorage.getItem("token") ? true : false
     );
     const [username, setUsername] = useState("");
+    const [id, setID] = useState("");
     const [active, setActive] = useState("");
     const alert = useAlert();
-    console.log("isloggedin " + isLoggedIn);
-    console.log("username " + username);
+    // console.log("isloggedin " + isLoggedIn);
+    // console.log("username " + username);
 
     useEffect(() => {
         if (isLoggedIn) {
@@ -31,8 +32,7 @@ function App(props) {
                 .then((res) => res.json())
                 .then((json) => {
                     setUsername(json.username);
-                    console.log(json);
-                    console.log(username);
+                    setID(json.id);
                 });
         }
     }, []);
@@ -84,6 +84,7 @@ function App(props) {
                 localStorage.setItem("token", json.token);
                 setIsLoggedIn(true);
                 setUsername(json.user.username);
+                setID(json.user.id);
                 props.history.push("/");
             })
             .catch((error) => alert.show("Wrong Username or Password"));
@@ -125,7 +126,11 @@ function App(props) {
                         <Login {...props} handleLogin={handleLogin} />
                     )}
                 />
-                <Route exact path="/books/:bookID" component={BookPage} />
+                <Route
+                    exact
+                    path="/books/:bookID"
+                    render={(props) => <BookPage {...props} id={id} />}
+                />
                 <Route
                     path="/profile"
                     render={(props) => (

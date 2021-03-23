@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Link } from "react-router-dom";
 import books from "./Books";
 import Navbar from "../components/Navbar.js";
@@ -6,6 +7,8 @@ import { Container, CssBaseline, Button, Box } from "@material-ui/core";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import CardContent from "@material-ui/core/CardContent";
+import FadeLoader from "react-spinners/FadeLoader";
+import { css } from "@emotion/react";
 
 const useStyles = makeStyles({
     container: {
@@ -40,55 +43,73 @@ const RoundedButton = withStyles((theme) => ({
     },
 }))(Button);
 
-export default function BookPage({ match, location }) {
+export default function BookPage({ match, location, id }) {
+    console.log(id);
     const classes = useStyles();
-    const book = books.filter((x) => x._id == match.params.bookID)[0];
-    console.log(book);
+    const [book, setBook] = useState({});
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        axios
+            .get(
+                `http://localhost:8000/server/booklist/${match.params.bookID}/`
+            )
+            .then((res) => {
+                console.log(res.data);
+                setBook(res.data);
+                setLoading(false);
+            });
+    }, []);
+
+    const handleBorrow = (bookID, memberID) => {
+        // POST request
+    };
+
     return (
         <React.Fragment>
             <CssBaseline />
-            <main>
-                <Container maxWidth="md" className={classes.container}>
-                    <CardContent className={classes.book}>
-                        <img
-                            src={book.thumbnailUrl}
-                            alt="Book Cover"
-                            className={classes.cover}
-                        />
-                        <CardContent className={classes.bookInfo}>
-                            <Typography variant="h3" align="left">
-                                {book.title}
-                            </Typography>
-                            <Typography
-                                variant="h4"
-                                align="left"
-                                color="textSecondary"
-                            >
-                                by {book.authors.join(", ")}
-                            </Typography>
-                            <Link
-                                to="/library"
-                                style={{
-                                    textDecoration: "none",
-                                    color: "white",
-                                }}
-                            >
+            {loading ? (
+                <div className={classes.loading}>
+                    <FadeLoader
+                        loading={loading}
+                        color="#2176ff"
+                        css={css}
+                        size={150}
+                    />
+                </div>
+            ) : (
+                <main>
+                    <Container maxWidth="md" className={classes.container}>
+                        <CardContent className={classes.book}>
+                            <img
+                                src={book.thumbnailUrl}
+                                alt="Book Cover"
+                                className={classes.cover}
+                            />
+                            <CardContent className={classes.bookInfo}>
+                                <Typography variant="h3" align="left">
+                                    {book.title}
+                                </Typography>
+                                <Typography
+                                    variant="h4"
+                                    align="left"
+                                    color="textSecondary"
+                                >
+                                    by {book.authors.replace(/[\[\]']+/g, "")}
+                                </Typography>
+
                                 <RoundedButton
                                     variant="contained"
                                     color="primary"
                                     href="#"
                                     size="large"
+                                    onClick={() =>
+                                        handleBorrow(match.params.bookID, id)
+                                    }
                                 >
                                     Borrow
                                 </RoundedButton>
-                            </Link>
-                            <Link
-                                to="/library"
-                                style={{
-                                    textDecoration: "none",
-                                    color: "white",
-                                }}
-                            >
+
                                 <RoundedButton
                                     variant="contained"
                                     color="primary"
@@ -97,23 +118,23 @@ export default function BookPage({ match, location }) {
                                 >
                                     Reserve
                                 </RoundedButton>
-                            </Link>
+                            </CardContent>
                         </CardContent>
-                    </CardContent>
-                    <Typography variant="h6">
-                        {book.longDescription ? "Description" : null}
-                    </Typography>
-                    <Typography
-                        variant="subtitle1"
-                        align="left"
-                        color="textSecondary"
-                    >
-                        {book.longDescription
-                            ? book.longDescription
-                            : book.shortDescription}
-                    </Typography>
-                </Container>
-            </main>
+                        <Typography variant="h6">
+                            {book.longDescription ? "Description" : null}
+                        </Typography>
+                        <Typography
+                            variant="subtitle1"
+                            align="left"
+                            color="textSecondary"
+                        >
+                            {book.longDescription
+                                ? book.longDescription
+                                : book.shortDescription}
+                        </Typography>
+                    </Container>
+                </main>
+            )}
         </React.Fragment>
     );
 }
