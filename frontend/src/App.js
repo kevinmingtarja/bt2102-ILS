@@ -35,7 +35,7 @@ function App(props) {
                     setID(json.id);
                 });
         }
-    }, []);
+    }, [isLoggedIn]);
 
     const handleRegister = (e, data) => {
         e.preventDefault();
@@ -134,7 +134,7 @@ function App(props) {
                 <Route
                     path="/profile"
                     render={(props) => (
-                        <Profile {...props} username={username} />
+                        <Profile {...props} username={username} id={id} />
                     )}
                 />
                 <Route path="/" component={Home} />

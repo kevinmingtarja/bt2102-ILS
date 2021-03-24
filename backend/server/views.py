@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import UserSerializer, UserSerializerWithToken
+import time
 
 from django.shortcuts import render, get_object_or_404
 from rest_framework import viewsets, status
@@ -24,6 +25,10 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views import generic
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+
+import datetime
+from pymongo import MongoClient
+import pymongo
 
 # Create your views here.
 
@@ -69,33 +74,262 @@ def getBook(request, pk):
     serializer = BookInstanceSerializer(book, many = False)
     return Response(serializer.data)
 
-#Borrow book (CHECKED)
 @api_view(['GET'])
-def borrowBook(request, bookid, memberid):
-        if request.user.is_authenticated:
-            #Check book's availability
-            member = User.objects.get(id = memberid)
-            book = Book.objects.get(bookid = bookid) #book = get_object_or_404(Book, bookid)
-            isAvailable = book.availabilitystatus
-            if isAvailable:
-                # checking for unpaid fines
-                try:
-                    fine = Fine.objects.get(memberid = member)
-                    if fine.paymentStatus == "Not Approved" :
-                        raise PermissionDenied("User is unable to reserve the book. User has to pay the fines first.") #Denied Permission, still not sure
-                except ObjectDoesNotExist:
-                    numberOfBook = Book.objects.filter(borrowerid = member).count()
-                    #Check the number of book user has borrowed
-                    if numberOfBook >= 4:
-                        raise PermissionDenied("User has reached maximum borrowing limit. User cannot borrow the book") #Denied Permission, still not sure
+def getUsersBorrowedBooks(request, userid):
+    book = Book.objects.filter(borrowerid = userid)
+    serializer = BookSerializer(book, many = True)
+    return Response(serializer.data)
 
-                    else:
-                        #proceed to borrow the book
-                        book.borrowerid = member
-                        book.expectedduedate = datetime.date.today() + datetime.timedelta(days=30)
-                        availabiltystatus = "Not Available"
-                        book.save(update_fields=["borrowerid", "expectedduedate", "availabilitystatus"])
-                        serializer = BookSerializer(book)
-                        return Response(serializer.data)
+@api_view(['GET'])
+def getUsersReservedBooks(request, userid):
+    reservations = Reservation.objects.filter(reserverid = userid)
+    books = [reservation.bookid for reservation in reservations]
+    serializer = BookSerializer(books, many = True)
+    return Response(serializer.data)
+
+#Borrow book (CHECKED)
+@api_view(['POST'])
+def borrowBook(request):
+    data = request.data
+    bookid = data["bookid"]
+    memberid = data["memberid"]
+
+    if request.user.is_authenticated:
+        #Check book's availability
+        member = User.objects.get(id = memberid)
+        book = Book.objects.get(bookid = bookid) #book = get_object_or_404(Book, bookid)
+        isAvailable = book.availabilitystatus
+        if isAvailable:
+            # checking for unpaid fines
+            try:
+                fine = Fine.objects.get(memberid = member)
+                if fine.paymentStatus == "Not Approved" :
+                    return Response({"res": "Please Proceed to Pay Your Fines First"}, status=status.HTTP_403_FORBIDDEN)
+            except ObjectDoesNotExist:
+                numberOfBook = Book.objects.filter(borrowerid = member).count()
+                #Check the number of book user has borrowed
+                if numberOfBook >= 4:
+                    return Response({"res": "Book Limit Exceeded"}, status=status.HTTP_403_FORBIDDEN)
+
+                else:
+                    #proceed to borrow the book
+                    book.borrowerid = member
+                    book.expectedduedate = datetime.date.today() + datetime.timedelta(days=30)
+                    book.availabilitystatus = False
+                    book.save(update_fields=["borrowerid", "expectedduedate", "availabilitystatus"])
+                    serializer = BookSerializer(book)
+                    return Response(serializer.data)
+
+        return Response({"res": "Book is Currently Unavailable"}, status=status.HTTP_403_FORBIDDEN)
+    return Response({"res": "User Not Authenticated"}, status=status.HTTP_403_FORBIDDEN)
+
+# @login_required
+@api_view(['POST'])
+def returnBook(request): #not sure whether needs to take input memberid or use request.user.id
+    # checking for unpaid fines
+    data = request.data
+    bookid = data['bookid']
+    memberid = data['memberid']
+
+    try:
+        fine = Fine.objects.get(memberid = User.objects.get(id = memberid))
+        if fine.paymentStatus == "Not Approved" :
+            return Response({"res": "User is unable to return the book. User has to pay the fines first"}, status=status.HTTP_403_FORBIDDEN)
         else:
-                raise PermissionDenied("Book is not available at the moment") #Denied Permission
+            # returning the book
+            currentBook = get_object_or_404(Book, bookid = bookid)
+            currentBook.borrowerid = None
+            currentBook.availabilitystatus = True
+            currentBook.expectedduedate = None
+            currentBook.save()
+            serializer = BookSerializer(currentBook)
+            return Response(serializer.data)
+    except ObjectDoesNotExist:
+        # returning the book
+        currentBook = get_object_or_404(Book, bookid = bookid)
+        currentBook.borrowerid = None
+        currentBook.availabilitystatus = True
+        currentBook.expectedduedate = None
+        currentBook.save()
+        serializer = BookSerializer(currentBook)
+        return Response(serializer.data)
+
+@api_view(['POST'])
+# @login_required
+def reserveBook(request):
+    data = request.data
+    bookid = data['bookid']
+    memberid = data['memberid']
+
+    book = Book.objects.get(bookid = bookid)
+    if request.user.is_authenticated:
+        # checking for unpaid fines
+        try:
+            fine = Fine.objects.get(memberid = memberid)
+            if fine.paymentStatus == "Not Approved" :
+                return Response({"res": "User is unable to reserve the book. User has to pay the fines first."}, status=status.HTTP_403_FORBIDDEN)
+        except ObjectDoesNotExist:
+            # checking if reserved
+            if book.reservationstatus:
+                return Response({"res": "Book is currently reserved. User is unable to reserve the book."}, status=status.HTTP_403_FORBIDDEN)
+    
+            # checking if available
+            elif book.availabilitystatus:
+                return Response({"res": "Book is currently available. Please proceed to borrow the book instead."}, status=status.HTTP_403_FORBIDDEN)
+    
+            # reserving the book
+            else:
+                book.reservationstatus = True
+                book.save(update_fields=["reservationstatus"])
+
+                reservationno = int(time.time() * 1000000)
+                reservation = Reservation(bookid = book, reserverid= User.objects.get(id = memberid), reservationno = reservationno)
+                reservation.save()
+                
+                reservation_serializer = ReservationSerializer(reservation)
+                book_serializer = BookSerializer(book)
+                #if reservation_serializer.is_valid() and reservation_serializer.is_valid():
+                #    reservation_serializer.save()
+                #    book_serializer.save()
+                return Response({'reservation':reservation_serializer.data,
+                                 'book': book_serializer.data})
+                #return Response(serializer.errors,
+                #status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['DELETE'])
+def cancelReservation(request, bookid, memberid):
+    #gets the reservation tuple/entry 
+    book = Book.objects.get(bookid = bookid)
+    member = User.objects.get(id = memberid)
+    #if request.method == 'DELETE': #still not sure.... or should it be delete hmmmm
+    try:
+        reservation = Reservation.objects.filter(reserverid=memberid, bookid=bookid).first()
+        #deletes the entire reservation entry from Reservation table 
+        reservation.delete()
+        # from the user's input of the BookID, set status to false in Book table 
+        book = Book.objects.get(bookid = bookid)
+        book.reservationstatus = False
+        book.save(update_fields=["reservationstatus"])
+        serializer = BookSerializer(book)
+        return Response(serializer.data)
+    
+    except :
+        return Response({"res" : "User does not have reservation for this book"}, status = status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+def convertToBorrow(request):
+    data = request.data
+    bookid = data['bookid']
+    memberid = data['memberid']
+
+    book = Book.objects.get(bookid = bookid)
+    member = User.objects.get(id = memberid)
+
+    if not book.borrowerid:
+        reservation = Reservation.objects.filter(reserverid = memberid, bookid = bookid).first()
+        #change book reservation status
+        book.reservationstatus = False
+        #set availability status to False
+        book.availabilitystatus = False
+        book.borrowerid = member
+        book.expectedduedate = datetime.date.today() + datetime.timedelta(days=30)
+        book.save(update_fields=['reservationstatus','availabilitystatus','borrowerid','expectedduedate'])
+        #delete reservation
+        reservation.delete()
+        serializer = BookSerializer(book)
+        return Response(serializer.data)
+    else:
+        return Response({"res": "This Book has not been returned yet by the previous borrower"}, status = status.HTTP_403_FORBIDDEN)
+
+@api_view(['POST']) 
+# @login_required
+def renewBook(request):
+    data = request.data
+    bookid = data['bookid']
+    memberid = data['memberid']
+
+    currentBook =  Book.objects.get(bookid = bookid)
+
+    #check if book has a pending reservation
+    if currentBook.reservationstatus == True:
+        return Response({"res": "Unable to renew as there is a pending reservation by another user"}, status=status.HTTP_403_FORBIDDEN)
+    else:
+        #if no pending reservation, allow user to borrow book again
+        currentBook.borrowerid = User.objects.get(id = memberid)
+        currentBook.availabilitystatus = False
+        newDueDate = currentBook.expectedduedate + datetime.timedelta(days=30)
+        currentBook.expectedduedate = newDueDate
+        currentBook.save(update_fields=['borrowerid','availabilitystatus','expectedduedate'])
+        serializer = BookSerializer(currentBook)
+        return Response(serializer.data) 
+        
+client = MongoClient('localhost',port = 27017)
+db = client['library-django-db']
+class BookListView(generics.ListAPIView):
+    serializer_class = BookInstanceSerializer
+
+    def get_queryset(self):
+        if self.request.method == 'GET':
+            query = self.request.GET.get('q', None)
+            if query is not None:
+                results = list(db.server_book_instance.find({"$text" : {"$search" : query}}))
+                #lookups= Q(title__icontains=query) | Q(authors__icontains=query)
+                #results= Book_Instance.objects.filter(lookups).distinct()
+                results= loads(dumps(results, indent =2 ))
+                queryset = results
+            return queryset
+
+@api_view(['GET'])
+def calculateFine(request) :
+    listOfMember = Memberuser.objects.all()
+    instances = []
+    book_instances = []
+    for member in listOfMember: 
+        listOfBook = member.book_set.all() #return empty queryset if does not exist
+        if listOfBook.exists() : #Check whether member has borrowed books
+            fine = 0
+            currentDate = datetime.date.today()
+            for book in listOfBook:
+                if book.expectedduedate > currentDate:
+                    fine += (currentDate - book.expectedduedate).days
+                else:
+                    continue
+            if fine > 0:
+                try:        #Check whether this particular member has already had a previous record in Fine
+                    record = Fine.objects.get(memberid = member)
+                    record.amount = fine
+                    record.save()
+                    instances.append(record)
+                except ObjectDoesNotExist:
+                     newRecord = Fine(memberid =member)
+                     newRecord.save()
+                     instances.append(newRecord)
+            try:
+                reservations = Reservation.objects.filter(memberid = member)
+                records = Reservation.objects.filter(memberid = member)
+                booklist = []
+                for book in records:
+                    bookidlist.append(book.bookid)
+                #deletes the entire reservation entry from Reservation table 
+                for reservation in reservations:
+                    reservation.delete()
+                # from the user's input of the BookID, set status to false in Book table 
+                for bookid in bookidlist:
+                    book = Book.objects.get(bookid = bookid)
+                    book.reservationstatus = False
+                    book.save(update_fields=["reservationstatus"])
+                    book_instances.append(book)
+            except ObjectDoesNotExist:
+                continue
+        else:
+            continue
+    if len(instances) > 0:
+        serializer = FineSerializer(instances, many = True)
+        if len(book_instances) > 0:
+            book_serializer = BookSerializer(book_instances,many=True)
+        return Response({'fine': serializer.data,
+                         'book' : book_serializer.data})
+    return Response({"res": "No Fine Recorded"}) #not sure what to return if Nothing changes
