@@ -5,24 +5,26 @@ import {
     CategoryItem,
 } from "@mui-treasury/components/menu/category";
 import { makeStyles } from "@material-ui/core/styles";
-import { Container } from "@material-ui/core";
-import Typography from "@material-ui/core/Typography";
+import { YearPicker } from "react-dropdown-date";
 
 const useStyles = makeStyles({
     container: {
         backgroundColor: "#E7ECEF",
         borderRadius: "10px",
         marginTop: "5vh",
-        height: "130vh",
+        padding: "1rem",
+        paddingTop: 0,
+        height: "125vh",
         width: "20vw",
         display: "grid",
         rowGap: 0,
         textAlign: "left",
         paddingLeft: "1rem",
     },
-    item: {
+    active: {
         margin: 0,
         padding: 0,
+        fontWeight: "bold",
     },
 });
 
@@ -64,16 +66,38 @@ const categories = [
     "Software Development",
 ];
 
-export default function AdvancedSearch() {
+export default function AdvancedSearch(props) {
     const classes = useStyles();
     return (
         <div className={classes.container}>
             <CategoryProvider>
                 <CategoryTitle>Published Year</CategoryTitle>
+                <YearPicker
+                    defaultValue={"Select Year"}
+                    start={1993} // default is 1900
+                    end={2020} // default is current year
+                    reverse // default is ASCENDING
+                    value={props.year} // mandatory
+                    onChange={(year) => {
+                        // mandatory
+                        props.setYear(year);
+                    }}
+                    id={"year"}
+                    name={"year"}
+                />
+
                 <CategoryTitle>Categories</CategoryTitle>
                 {categories.map((category) => {
                     return (
-                        <CategoryItem className={classes.item}>
+                        <CategoryItem
+                            className={
+                                props.category == category
+                                    ? classes.active
+                                    : null
+                            }
+                            onClick={() => props.setCategory(category)}
+                            style={{ cursor: "pointer" }}
+                        >
                             {category}
                         </CategoryItem>
                     );

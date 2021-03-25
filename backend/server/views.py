@@ -63,7 +63,7 @@ class UserList(APIView):
 @api_view(['GET'])
 @permission_classes((AllowAny, ))
 def bookList(request):
-    books = Book_Instance.objects.all()[:100]
+    books = Book_Instance.objects.all()[:200]
     serializer = BookInstanceSerializer(books, many = True)
     return Response(serializer.data)
 
@@ -80,6 +80,28 @@ def getCategories(request):
     lst = []
     for k in d.keys():
         lst.append(k)
+
+    return Response({"res": lst}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes((AllowAny, ))
+def getYears(request):
+    books = Book_Instance.objects.all()
+    d = {}
+
+    for book in books:
+        year = book.publishedDate
+        if year:
+            year = json.loads(book.publishedDate.replace('\'', '"'))['$date'].split('-')[0]
+            print(year)
+            if year not in d:
+                d[year] = 1
+
+    lst = []
+    for k in d.keys():
+        lst.append(k)
+    
+    lst.sort()
 
     return Response({"res": lst}, status=status.HTTP_200_OK)
 

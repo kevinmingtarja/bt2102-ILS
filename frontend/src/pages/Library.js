@@ -10,6 +10,7 @@ import { Container, CssBaseline } from "@material-ui/core";
 import { css } from "@emotion/react";
 import FadeLoader from "react-spinners/FadeLoader";
 import readingImg from "../static/books.svg";
+import { SignalCellularNullOutlined } from "@material-ui/icons";
 
 const useStyles = makeStyles({
     container: {
@@ -31,7 +32,7 @@ export default function Library(props) {
     const [loading, setLoading] = useState(true);
     const [books, setBooks] = useState([]);
     const [category, setCategory] = useState("");
-    const [year, setYear] = useState("");
+    const [year, setYear] = useState(SignalCellularNullOutlined);
 
     useEffect(() => {
         props.setActive("library");
@@ -81,7 +82,12 @@ export default function Library(props) {
                     </div>
                 ) : (
                     <Container maxWidth="false" className={classes.container}>
-                        <AdvancedSearch />
+                        <AdvancedSearch
+                            year={year}
+                            setYear={setYear}
+                            category={category}
+                            setCategory={setCategory}
+                        />
                         <Grid container xs={12}>
                             {books.map((book) => {
                                 return (
