@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Input from "@material-ui/core/Input";
 import InputAdornment from "@material-ui/core/InputAdornment";
@@ -15,8 +15,24 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function SearchBar() {
+export default function SearchBar({ handleSearch, loadAll }) {
     const classes = useStyles();
+    const [keyword, setKeyword] = useState("");
+    console.log(keyword);
+
+    const handleInput = (e) => {
+        setKeyword(e.target.value);
+    };
+
+    const handleEnterPress = (e) => {
+        if (e.key === "Enter") {
+            if (keyword == "") {
+                loadAll();
+            } else {
+                handleSearch(keyword);
+            }
+        }
+    };
 
     return (
         <div>
@@ -25,6 +41,8 @@ export default function SearchBar() {
                 className={classes.margin}
                 placeholder="Search"
                 size="medium"
+                onChange={handleInput}
+                onKeyPress={handleEnterPress}
                 InputProps={{
                     startAdornment: (
                         <InputAdornment position="start">

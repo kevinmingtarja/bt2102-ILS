@@ -30,9 +30,15 @@ export default function Library(props) {
     const classes = useStyles();
     const [loading, setLoading] = useState(true);
     const [books, setBooks] = useState([]);
+    const [category, setCategory] = useState("");
+    const [year, setYear] = useState("");
 
     useEffect(() => {
         props.setActive("library");
+        loadAll();
+    }, []);
+
+    const loadAll = () => {
         axios
             .get("http://localhost:8000/server/booklist/")
             .then((res) => {
@@ -41,7 +47,18 @@ export default function Library(props) {
                 setLoading(false);
             })
             .catch((error) => console.log(error));
-    }, []);
+    };
+
+    const handleSearch = (keyword) => {
+        axios
+            .get(`http://localhost:8000/server/search/?q=${keyword}/`)
+            .then((res) => {
+                const booklist = res.data;
+                setBooks(booklist);
+                setLoading(false);
+            })
+            .catch((error) => console.log(error));
+    };
 
     return (
         <React.Fragment>
@@ -51,7 +68,7 @@ export default function Library(props) {
                 alt="Person reading a book"
                 className={classes.topimg}
             />
-            <SearchBar />
+            <SearchBar handleSearch={handleSearch} loadAll={loadAll} />
             <main>
                 {loading ? (
                     <div className={classes.loading}>
@@ -69,7 +86,10 @@ export default function Library(props) {
                             {books.map((book) => {
                                 return (
                                     <>
-                                        <Link to={`/books/${book._id}`}>
+                                        <Link
+                                            to={`/books/${book._id}`}
+                                            style={{ textDecoration: "none" }}
+                                        >
                                             <BookCard
                                                 id={book._id}
                                                 title={book.title}

@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import UserSerializer, UserSerializerWithToken
 import time
+import json
 
 from django.shortcuts import render, get_object_or_404
 from rest_framework import viewsets, status
@@ -65,6 +66,22 @@ def bookList(request):
     books = Book_Instance.objects.all()[:100]
     serializer = BookInstanceSerializer(books, many = True)
     return Response(serializer.data)
+
+# Create Categories
+@api_view(['GET'])
+@permission_classes((AllowAny, ))
+def getCategories(request):
+    books = Book_Instance.objects.all()
+    d = {}
+    for book in books:
+        for category in json.loads(book.categories.replace('\'', '"')):
+            if category not in d:
+                d[category] = 1
+    lst = []
+    for k in d.keys():
+        lst.append(k)
+
+    return Response({"res": lst}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -270,17 +287,53 @@ client = MongoClient('localhost',port = 27017)
 db = client['library-django-db']
 class BookListView(generics.ListAPIView):
     serializer_class = BookInstanceSerializer
+    permission_classes = [AllowAny, ]
 
     def get_queryset(self):
         if self.request.method == 'GET':
             query = self.request.GET.get('q', None)
+
             if query is not None:
                 results = list(db.server_book_instance.find({"$text" : {"$search" : query}}))
-                #lookups= Q(title__icontains=query) | Q(authors__icontains=query)
+                #lookups= Q(title_icontains=query) | Q(authors_icontains=query)
                 #results= Book_Instance.objects.filter(lookups).distinct()
                 results= loads(dumps(results, indent =2 ))
                 queryset = results
+            else:
+                results = list(db.server_book_instance.find())
+                results = loads(dumps(results, indent =2))
+                queryset = results
             return queryset
+
+class FilterListView(generics.ListAPIView):
+    serializer_class = BookInstanceSerializer
+    permission_classes = [AllowAny, ]
+
+    def get_queryset(self):
+         if self.request.method == 'GET':
+            query1 = self.request.GET.get('category',None)
+            query2 = self.request.GET.get('year',None)
+            if query1 is not None and query2 is not None:
+                results = db.server_book_instance.find({"$and" :[{"categories": {"$regex" : "internet", "$options" : "i"}}, {"publishedDate" : {"$regex" :"2009","$options" :"i"}}]})
+                
+                #lookups= Q(title_icontains=query) | Q(authors_icontains=query)
+                #results= Book_Instance.objects.filter(lookups).distinct()
+                results= loads(dumps(results, indent =2 ))
+                queryset = results
+            elif query1 is not None and query2 is None:
+                results = list(db.server_book_instance.find({"categories" : {"$regex": query1, '$options' : 'i'}}))
+                results= loads(dumps(results, indent =2 ))
+                queryset = results
+            elif (query1 is None) and (query2 is not None):
+                results = list(db.server_book_instance.find({"publishedDate" : {"$regex": query2, '$options' : 'i'}}))
+                results= loads(dumps(results, indent =2 ))
+                queryset = results
+            else:
+                results = list(db.server_book_instance.find())
+                results = loads(dumps(results, indent =2))
+                queryset = results
+            return queryset
+
 
 @api_view(['GET'])
 def calculateFine(request) :
@@ -333,3 +386,17 @@ def calculateFine(request) :
         return Response({'fine': serializer.data,
                          'book' : book_serializer.data})
     return Response({"res": "No Fine Recorded"}) #not sure what to return if Nothing changes
+
+#pay fine, only show this for member who has fine
+@login_required
+def pay_fine(request, memberid):
+    fine = Fine.objects.get(memberid = Memberuser.objects.get(memberid = memberid))
+    amount = fine.amount
+    if request.method == 'POST':
+        fine.paymentmethod = request.data['paymentmethod']  #payment method updated
+        #proceeds to pay here
+
+        #payment validation
+        fine.paymentstatus = "Approved"
+        fine.save(update_fields["paymentmethod", "paymentstatus"])#updates the payment status 
+

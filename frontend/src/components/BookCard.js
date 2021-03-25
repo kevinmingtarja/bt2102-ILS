@@ -13,16 +13,19 @@ const useStyles = makeStyles({
         minHeight: 400,
         color: "black",
         margin: "20px",
-        backgroundColor: "white",
+        backgroundColor: "#fafafa",
         display: "grid",
-        gridTemplateRows: "80% 20%",
     },
     cover: {
+        width: "100%",
+        minHeight: 320,
+    },
+    img: {
         width: "100%",
     },
     info: {
         padding: 0,
-        backgroundColor: "white",
+        backgroundColor: "#fafafa",
     },
 });
 
@@ -31,7 +34,9 @@ export default function BookCard(props) {
 
     return (
         <Card className={classes.root} elevation="0">
-            <img src={props.url} alt="Book Cover" className={classes.cover} />
+            <div className={classes.cover}>
+                <img src={props.url} alt="Book Cover" className={classes.img} />
+            </div>
             <CardContent className={classes.info}>
                 <Typography variant="h6" align="left">
                     {props.title}
