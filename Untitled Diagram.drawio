@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2021-03-28T02:16:32.425Z" agent="5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36" etag="tnGcNL4zr8PPyIYiUQ7L" version="14.4.9" type="github" pages="5">
+<mxfile host="app.diagrams.net" modified="2021-03-28T02:21:41.961Z" agent="5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36" etag="bLq4TB84oEQBT2oNY3G0" version="14.4.9" type="github" pages="5">
   <diagram id="7yjsdwkE0pjcYwVuFHQ9" name="Page-3">
     <mxGraphModel dx="928" dy="560" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
       <root>
@@ -474,7 +474,7 @@
         <mxCell id="GWD_NOGXbm1jZVDmYiK8-43" value="Reservation" style="shape=ext;margin=3;double=1;whiteSpace=wrap;html=1;align=center;strokeWidth=2;" parent="GWD_NOGXbm1jZVDmYiK8-1" vertex="1">
           <mxGeometry x="580" y="234.33999999999997" width="100" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="GWD_NOGXbm1jZVDmYiK8-44" value="ReservationStatus" style="ellipse;whiteSpace=wrap;html=1;align=center;fontSize=10;" parent="GWD_NOGXbm1jZVDmYiK8-1" vertex="1">
+        <mxCell id="GWD_NOGXbm1jZVDmYiK8-44" value="ReservationID" style="ellipse;whiteSpace=wrap;html=1;align=center;fontSize=10;" parent="GWD_NOGXbm1jZVDmYiK8-1" vertex="1">
           <mxGeometry x="580" y="144.34" width="100" height="50" as="geometry" />
         </mxCell>
         <mxCell id="GWD_NOGXbm1jZVDmYiK8-45" value="" style="endArrow=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="GWD_NOGXbm1jZVDmYiK8-1" source="GWD_NOGXbm1jZVDmYiK8-43" target="GWD_NOGXbm1jZVDmYiK8-44" edge="1">
