@@ -57,8 +57,20 @@ export default function Library(props) {
                 const booklist = res.data;
                 setBooks(booklist);
                 setLoading(false);
+                setYear(null);
+                setCategory("");
             })
             .catch((error) => console.log(error));
+    };
+
+    const handleFilter = (year, category) => {
+        axios
+            .get(
+                `http://localhost:8000/server/filter/?category=${category}&published_year=${year}/`
+            )
+            .then((res) => {
+                setBooks(res.data);
+            });
     };
 
     return (
@@ -87,6 +99,7 @@ export default function Library(props) {
                             setYear={setYear}
                             category={category}
                             setCategory={setCategory}
+                            handleFilter={handleFilter}
                         />
                         <Grid container xs={12}>
                             {books.map((book) => {

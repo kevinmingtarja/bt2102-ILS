@@ -409,16 +409,59 @@ def calculateFine(request) :
                          'book' : book_serializer.data})
     return Response({"res": "No Fine Recorded"}) #not sure what to return if Nothing changes
 
+@api_view(['GET'])
+def get_fine(request, memberid):
+    try:
+        fine = Fine.objects.get(memberid = User.objects.get(id = memberid))
+        amount = fine.amount
+        return Response({"res": amount}, status=status.HTTP_200_OK)
+    except:
+        return Response({"res": "No Fines"}, status=status.HTTP_200_OK)
+
+
 #pay fine, only show this for member who has fine
-@login_required
+@api_view(['POST'])
 def pay_fine(request, memberid):
     fine = Fine.objects.get(memberid = Memberuser.objects.get(memberid = memberid))
     amount = fine.amount
-    if request.method == 'POST':
-        fine.paymentmethod = request.data['paymentmethod']  #payment method updated
-        #proceeds to pay here
+    fine.paymentmethod = request.data['paymentmethod']  #payment method updated
+    #proceeds to pay here
 
-        #payment validation
-        fine.paymentstatus = "Approved"
-        fine.save(update_fields["paymentmethod", "paymentstatus"])#updates the payment status 
+    #payment validation
+    fine.paymentstatus = "Approved"
+    fine.save(update_fields["paymentmethod", "paymentstatus"])#updates the payment status 
 
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.contrib.admin.views.decorators import staff_member_required
+from django.views import generic, View
+
+class AdminStaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_superuser or self.request.user.is_staff
+
+@permission_required("can_view_reservation", raise_exception=True)
+class ReservedBooksByAdminListView(AdminStaffRequiredMixin,View):
+    """Generic class-based view listing books on loan to current admin."""
+    model = Reservation
+    paginate_by = 10
+    raise_exception = True
+    def get_queryset(self):
+            return Reservation.objects.all()
+            
+@permission_required("can_view_loanedbooks", raise_exception=True)
+class LoanedBooksByAdminListView(AdminStaffRequiredMixin,View):
+    """Generic class-based view listing books on loan to current admin."""
+    model = Book
+    raise_exception = True
+    paginate_by = 10
+    def get_queryset(self):
+            return Book.objects.filter(availabilitystatus = False).order_by('expectedduedate')
+
+@staff_member_required
+class UnpaidFinesByAdminListView(AdminStaffRequiredMixin,View):
+    """Generic class-based view listing books on loan to current admin."""
+    model = Fine
+    raise_exception = True
+    paginate_by = 10
+    def get_unpaidFines(request):
+        fine = Fine.objects.filter(paymentstatus = "Not Approved").order_by('memberid')

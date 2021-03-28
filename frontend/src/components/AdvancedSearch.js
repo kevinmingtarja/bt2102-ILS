@@ -6,6 +6,8 @@ import {
 } from "@mui-treasury/components/menu/category";
 import { makeStyles } from "@material-ui/core/styles";
 import { YearPicker } from "react-dropdown-date";
+import Button from "@material-ui/core/Button";
+import { useFirebaseBtnStyles } from "@mui-treasury/styles/button/firebase";
 
 const useStyles = makeStyles({
     container: {
@@ -14,7 +16,7 @@ const useStyles = makeStyles({
         marginTop: "5vh",
         padding: "1rem",
         paddingTop: 0,
-        height: "125vh",
+        height: "130vh",
         width: "20vw",
         display: "grid",
         rowGap: 0,
@@ -67,7 +69,9 @@ const categories = [
 ];
 
 export default function AdvancedSearch(props) {
+    const styles = useFirebaseBtnStyles();
     const classes = useStyles();
+
     return (
         <div className={classes.container}>
             <CategoryProvider>
@@ -102,6 +106,17 @@ export default function AdvancedSearch(props) {
                         </CategoryItem>
                     );
                 })}
+                <Button
+                    style={{ marginTop: "1.5rem", width: "95%" }}
+                    classes={styles}
+                    variant={"contained"}
+                    color={"primary"}
+                    onClick={() =>
+                        props.handleFilter(props.year, props.category)
+                    }
+                >
+                    Filter
+                </Button>
             </CategoryProvider>
         </div>
     );

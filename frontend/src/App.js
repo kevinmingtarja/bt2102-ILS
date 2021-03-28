@@ -107,7 +107,17 @@ function App(props) {
                 handleLogout={handleLogout}
             />
             <Switch>
-                <Route path="/payment" component={Payment} />
+                <Route
+                    path="/payment"
+                    render={(props) => (
+                        <Payment
+                            {...props}
+                            username={username}
+                            id={id}
+                            setActive={setActive}
+                        />
+                    )}
+                />
                 <Route
                     path="/library"
                     render={(props) => (

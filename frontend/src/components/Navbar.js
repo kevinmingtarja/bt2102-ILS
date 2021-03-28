@@ -65,7 +65,7 @@ export default function Navbar(props) {
                             }}
                             onClick={() => props.setActive("")}
                         >
-                            <Typography variant="h3">LOGO</Typography>
+                            <Typography variant="h3">BT2102</Typography>
                         </Link>
                         <Box height={48} display={"flex"}>
                             <NavMenu useStyles={useLineNavigationMenuStyles}>
@@ -96,17 +96,24 @@ export default function Navbar(props) {
                                         About Us
                                     </Typography>
                                 </NavItem>
-                                <NavItem
-                                    active={
-                                        props.active == "facilities"
-                                            ? true
-                                            : false
-                                    }
+                                <Link
+                                    to="/payment"
+                                    style={{
+                                        textDecoration: "none",
+                                    }}
                                 >
-                                    <Typography variant="h6">
-                                        Facilities
-                                    </Typography>
-                                </NavItem>
+                                    <NavItem
+                                        active={
+                                            props.active == "payments"
+                                                ? true
+                                                : false
+                                        }
+                                    >
+                                        <Typography variant="h6">
+                                            Payments
+                                        </Typography>
+                                    </NavItem>
+                                </Link>
                             </NavMenu>
                         </Box>
                         {!props.isLoggedIn ? (
