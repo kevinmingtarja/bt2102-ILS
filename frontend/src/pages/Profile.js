@@ -37,28 +37,24 @@ const useStyles = makeStyles({
 export default function Profile(props) {
     const classes = useStyles();
     const [data, setData] = useState(null);
+    const [reserved, setReserved] = useState([]);
+    const [borrowed, setBorrowed] = useState([]);
+    const [fines, setFines] = useState([]);
     const [active, setActive] = useState("Borrowed");
     const [loading, setLoading] = useState(true);
     const alert = useAlert();
+
+    console.log("IS STAFF " + props.isStaff);
+    console.log(reserved);
+    console.log(borrowed);
+    console.log(fines);
 
     if (data != null) {
         console.log(data.length == 0);
     }
 
     useEffect(() => {
-        // let userid = props.id
-        // if (!props.id) {
-        //     userid = await axios.get("http://localhost:8000/server/current_user/", {
-        //         headers: {
-        //             Authorization: `JWT ${localStorage.getItem("token")}`,
-        //         },
-        //     })
-        //     .then(res => res.json())
-        //     .then(json => json.id)
-        //     .catch(err => {return ""});
-        // }
-
-        setTimeout(() => {
+        if (!props.isStaff) {
             axios
                 .get(
                     `http://localhost:8000/server/borrowedbooks/${props.id}/`,
@@ -78,7 +74,65 @@ export default function Profile(props) {
                     console.log(err);
                     alert.show("Please Login Again");
                 });
-        }, 300);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (props.isStaff) {
+            axios
+                .get(`http://localhost:8000/server/adminreservedbooks/`, {
+                    headers: {
+                        Authorization: "JWT " + localStorage.getItem("token"),
+                    },
+                })
+                .then((res) => {
+                    console.log(res.data);
+                    setReserved(res.data);
+                    setLoading(false);
+                })
+                .catch((err) => {
+                    console.log(err);
+                    alert.show("Please Login Again");
+                });
+        }
+    }, []);
+
+    useEffect(() => {
+        if (props.isStaff) {
+            axios
+                .get(`http://localhost:8000/server/adminborrowedbooks/`, {
+                    headers: {
+                        Authorization: "JWT " + localStorage.getItem("token"),
+                    },
+                })
+                .then((res) => {
+                    console.log(res.data);
+                    setBorrowed(res.data);
+                })
+                .catch((err) => {
+                    console.log(err);
+                    alert.show("Please Login Again");
+                });
+        }
+    }, []);
+
+    useEffect(() => {
+        if (props.isStaff) {
+            axios
+                .get(`http://localhost:8000/server/adminunpaidfines/`, {
+                    headers: {
+                        Authorization: "JWT " + localStorage.getItem("token"),
+                    },
+                })
+                .then((res) => {
+                    console.log(res.data);
+                    setFines(res.data);
+                })
+                .catch((err) => {
+                    console.log(err);
+                    alert.show("Please Login Again");
+                });
+        }
     }, []);
 
     const handleChangeData = (newType) => {
@@ -142,72 +196,125 @@ export default function Profile(props) {
                             <Typography variant="h4">
                                 {props.username}
                             </Typography>
-                        </CardContent>
-                    </CardContent>
-                    <Box height={48} display={"flex"} justifyContent="center">
-                        <NavMenu useStyles={useLineNavigationMenuStyles}>
-                            <NavItem
-                                active={active == "Borrowed" ? true : false}
-                                onClick={() => handleChangeData("Borrowed")}
-                            >
-                                <Typography variant="h6">
-                                    Borrowed Books
-                                </Typography>
-                            </NavItem>
-                            <NavItem
-                                active={active == "Reserved" ? true : false}
-                                onClick={() => handleChangeData("Reserved")}
-                            >
-                                <Typography variant="h6">
-                                    Reserved Books
-                                </Typography>
-                            </NavItem>
-                            <NavItem
-                                active={active == "Fines" ? true : false}
-                                onClick={() => handleChangeData("Fines")}
-                            >
-                                <Typography variant="h6">Fines</Typography>
-                            </NavItem>
-                        </NavMenu>
-                    </Box>
-                    {loading ? (
-                        <div className={classes.loading}>
-                            <FadeLoader
-                                loading={loading}
-                                color="#2176ff"
-                                css={css}
-                                size={150}
-                            />
-                        </div>
-                    ) : data.length != 0 ? (
-                        <CardContent className={classes.books}>
-                            {data.map((book) => {
-                                if (active == "Borrowed") {
-                                    return (
-                                        <BorrowedBookList
-                                            book={book}
-                                            key={book.bookid}
-                                        />
-                                    );
-                                } else if (active == "Reserved") {
-                                    return (
-                                        <ReservedBookList
-                                            book={book}
-                                            id={props.id}
-                                            key={book.bookid}
-                                        />
-                                    );
-                                }
-                            })}
-                        </CardContent>
-                    ) : (
-                        <CardContent>
-                            <Typography variant="h3">
-                                {active != "Fines"
-                                    ? "No " + active + " Books"
-                                    : "No Fines"}
+                            <Typography variant="h4">
+                                {"Status: " +
+                                    (props.isStaff ? "Staff" : "Member")}
                             </Typography>
                         </CardContent>
+                    </CardContent>
+                    {!props.isStaff ? (
+                        <>
+                            <Box
+                                height={48}
+                                display={"flex"}
+                                justifyContent="center"
+                            >
+                                <NavMenu
+                                    useStyles={useLineNavigationMenuStyles}
+                                >
+                                    <NavItem
+                                        active={
+                                            active == "Borrowed" ? true : false
+                                        }
+                                        onClick={() =>
+                                            handleChangeData("Borrowed")
+                                        }
+                                    >
+                                        <Typography variant="h6">
+                                            Borrowed Books
+                                        </Typography>
+                                    </NavItem>
+                                    <NavItem
+                                        active={
+                                            active == "Reserved" ? true : false
+                                        }
+                                        onClick={() =>
+                                            handleChangeData("Reserved")
+                                        }
+                                    >
+                                        <Typography variant="h6">
+                                            Reserved Books
+                                        </Typography>
+                                    </NavItem>
+                                    <NavItem
+                                        active={
+                                            active == "Fines" ? true : false
+                                        }
+                                        onClick={() =>
+                                            handleChangeData("Fines")
+                                        }
+                                    >
+                                        <Typography variant="h6">
+                                            Fines
+                                        </Typography>
+                                    </NavItem>
+                                </NavMenu>
+                            </Box>
+                            {loading ? (
+                                <div className={classes.loading}>
+                                    <FadeLoader
+                                        loading={loading}
+                                        color="#2176ff"
+                                        css={css}
+                                        size={150}
+                                    />
+                                </div>
+                            ) : data.length != 0 ? (
+                                <CardContent className={classes.books}>
+                                    {data.map((book) => {
+                                        if (active == "Borrowed") {
+                                            return (
+                                                <BorrowedBookList
+                                                    book={book}
+                                                    key={book.bookid}
+                                                />
+                                            );
+                                        } else if (active == "Reserved") {
+                                            return (
+                                                <ReservedBookList
+                                                    book={book}
+                                                    id={props.id}
+                                                    key={book.bookid}
+                                                />
+                                            );
+                                        }
+                                    })}
+                                </CardContent>
+                            ) : (
+                                <CardContent>
+                                    <Typography variant="h3">
+                                        {active != "Fines"
+                                            ? "No " + active + " Books"
+                                            : "No Fines"}
+                                    </Typography>
+                                </CardContent>
+                            )}
+                        </>
+                    ) : (
+                        <>
+                            {loading ? (
+                                <div className={classes.loading}>
+                                    <FadeLoader
+                                        loading={loading}
+                                        color="#2176ff"
+                                        css={css}
+                                        size={150}
+                                    />
+                                </div>
+                            ) : (
+                                <div>
+                                    {reserved.map((book) => {
+                                        return book.title;
+                                    })}
+                                    {borrowed.map((book) => {
+                                        return book.title;
+                                    })}
+                                    {fines.map((fine) => {
+                                        return fine.amount;
+                                    })}
+                                </div>
+                            )}
+                        </>
                     )}
                 </Container>
             </main>

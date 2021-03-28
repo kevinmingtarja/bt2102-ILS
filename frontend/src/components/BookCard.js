@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
@@ -31,6 +32,17 @@ const useStyles = makeStyles({
 
 export default function BookCard(props) {
     const classes = useStyles();
+    const [bookData, setBookData] = useState({});
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        axios
+            .get(`http://localhost:8000/server/bookdata/${props.id}/`)
+            .then((res) => {
+                setBookData(res.data);
+                setLoading(false);
+            });
+    });
 
     return (
         <Card className={classes.root} elevation="0">
@@ -38,6 +50,29 @@ export default function BookCard(props) {
                 <img src={props.url} alt="Book Cover" className={classes.img} />
             </div>
             <CardContent className={classes.info}>
+                {bookData.availabilitystatus ? (
+                    <Typography
+                        variant="h6"
+                        align="left"
+                        style={{ color: "green" }}
+                    >
+                        Available
+                    </Typography>
+                ) : (
+                    <Typography
+                        variant="h6"
+                        align="left"
+                        style={{ color: "red" }}
+                    >
+                        Unavailable
+                    </Typography>
+                )}
+
+                <Typography variant="h6" align="left" color="textSecondary">
+                    {bookData.availabilitystatus
+                        ? null
+                        : "Due Date: " + bookData.expectedduedate}
+                </Typography>
                 <Typography variant="h6" align="left">
                     {props.title}
                 </Typography>
@@ -47,6 +82,13 @@ export default function BookCard(props) {
                     color="textSecondary"
                 >
                     {props.author.replace(/[\[\]']+/g, "")}
+                </Typography>
+                <Typography
+                    variant="subtitle1"
+                    align="left"
+                    color="textSecondary"
+                >
+                    {props.id}
                 </Typography>
             </CardContent>
         </Card>

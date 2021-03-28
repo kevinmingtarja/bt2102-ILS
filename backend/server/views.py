@@ -114,6 +114,13 @@ def getBook(request, pk):
     return Response(serializer.data)
 
 @api_view(['GET'])
+@permission_classes((AllowAny, ))
+def getBookData(request, pk):
+    book = Book.objects.get(bookid = pk)
+    serializer = BookSerializer(book, many = False)
+    return Response(serializer.data)
+
+@api_view(['GET'])
 def getUsersBorrowedBooks(request, userid):
     book = Book.objects.filter(borrowerid = userid)
     serializer = BookSerializer(book, many = True)
@@ -435,33 +442,31 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.admin.views.decorators import staff_member_required
 from django.views import generic, View
 
-class AdminStaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    def test_func(self):
-        return self.request.user.is_superuser or self.request.user.is_staff
-
-@permission_required("can_view_reservation", raise_exception=True)
-class ReservedBooksByAdminListView(AdminStaffRequiredMixin,View):
+class ReservedBooksByAdminListView(generics.ListAPIView):
     """Generic class-based view listing books on loan to current admin."""
+    serializer_class = ReservationSerializer
     model = Reservation
     paginate_by = 10
     raise_exception = True
     def get_queryset(self):
-            return Reservation.objects.all()
+        return Reservation.objects.all()
             
-@permission_required("can_view_loanedbooks", raise_exception=True)
-class LoanedBooksByAdminListView(AdminStaffRequiredMixin,View):
+
+class LoanedBooksByAdminListView(generics.ListAPIView):
     """Generic class-based view listing books on loan to current admin."""
+    serializer_class = BookSerializer
     model = Book
     raise_exception = True
     paginate_by = 10
     def get_queryset(self):
-            return Book.objects.filter(availabilitystatus = False).order_by('expectedduedate')
+        return Book.objects.filter(availabilitystatus = False).order_by('expectedduedate')
 
-@staff_member_required
-class UnpaidFinesByAdminListView(AdminStaffRequiredMixin,View):
+
+class UnpaidFinesByAdminListView(generics.ListAPIView):
     """Generic class-based view listing books on loan to current admin."""
+    serializer_class=FineSerializer
     model = Fine
     raise_exception = True
     paginate_by = 10
-    def get_unpaidFines(request):
+    def get_queryset(request):
         fine = Fine.objects.filter(paymentstatus = "Not Approved").order_by('memberid')

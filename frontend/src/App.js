@@ -17,6 +17,7 @@ function App(props) {
     );
     const [username, setUsername] = useState("");
     const [id, setID] = useState("");
+    const [isStaff, setIsStaff] = useState(false);
     const [active, setActive] = useState("");
     const alert = useAlert();
     // console.log("isloggedin " + isLoggedIn);
@@ -33,6 +34,7 @@ function App(props) {
                 .then((json) => {
                     setUsername(json.username);
                     setID(json.id);
+                    setIsStaff(json.is_staff);
                 });
         }
     }, [isLoggedIn]);
@@ -85,6 +87,7 @@ function App(props) {
                 setIsLoggedIn(true);
                 setUsername(json.user.username);
                 setID(json.user.id);
+                setIsStaff(json.is_staff);
                 props.history.push("/");
             })
             .catch((error) => alert.show("Wrong Username or Password"));
@@ -94,6 +97,7 @@ function App(props) {
         localStorage.removeItem("token");
         setIsLoggedIn(false);
         setUsername("");
+        setIsStaff(false);
         alert.show("Logged Out");
     };
 
@@ -144,7 +148,12 @@ function App(props) {
                 <Route
                     path="/profile"
                     render={(props) => (
-                        <Profile {...props} username={username} id={id} />
+                        <Profile
+                            {...props}
+                            username={username}
+                            id={id}
+                            isStaff={isStaff}
+                        />
                     )}
                 />
                 <Route path="/" component={Home} />
