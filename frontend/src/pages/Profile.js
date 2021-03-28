@@ -10,6 +10,7 @@ import ReservedBookList from "../components/ReservedBookList";
 import FadeLoader from "react-spinners/FadeLoader";
 import { css } from "@emotion/react";
 import { useAlert } from "react-alert";
+import AdminBorrowedBookList from "../components/AdminBorrowedBookList";
 
 import {
     Container,
@@ -303,12 +304,26 @@ export default function Profile(props) {
                                 </div>
                             ) : (
                                 <div>
-                                    {reserved.map((book) => {
-                                        return book.title;
-                                    })}
-                                    {borrowed.map((book) => {
-                                        return book.title;
-                                    })}
+                                    <div>
+                                        {reserved.map((book) => {
+                                            return (
+                                                <AdminBorrowedBookList
+                                                    id={book.bookid}
+                                                    book={book}
+                                                />
+                                            );
+                                        })}
+                                    </div>
+                                    <div>
+                                        {borrowed.map((book) => {
+                                            return (
+                                                <AdminBorrowedBookList
+                                                    id={book.bookid}
+                                                    book={book}
+                                                />
+                                            );
+                                        })}
+                                    </div>
                                     {fines.map((fine) => {
                                         return fine.amount;
                                     })}

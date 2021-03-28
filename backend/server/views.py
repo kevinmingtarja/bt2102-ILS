@@ -298,10 +298,13 @@ def renewBook(request):
     memberid = data['memberid']
 
     currentBook =  Book.objects.get(bookid = bookid)
+    member = User.objects.get(id = memberid)
 
     #check if book has a pending reservation
     if currentBook.reservationstatus == True:
         return Response({"res": "Unable to renew as there is a pending reservation by another user"}, status=status.HTTP_403_FORBIDDEN)
+    elif Book.objects.filter(borrowerid = member).count() >= 4:
+        return Response({"res": "Unable to renew as user has reached the limit of number of books borrowed"}, status=status.HTTP_403_FORBIDDEN)
     else:
         #if no pending reservation, allow user to borrow book again
         currentBook.borrowerid = User.objects.get(id = memberid)

@@ -42,7 +42,7 @@ export default function BookCard(props) {
                 setBookData(res.data);
                 setLoading(false);
             });
-    });
+    }, []);
 
     return (
         <Card className={classes.root} elevation="0">
