@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
     },
     container: {
         display: "grid",
-        gridTemplateColumns: "20% 60% 20%",
+        gridTemplateColumns: "25% 50% 25%",
         justifyItems: "center",
     },
     pages: {

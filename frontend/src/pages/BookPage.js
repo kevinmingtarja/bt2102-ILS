@@ -5,10 +5,13 @@ import { makeStyles, withStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import CardContent from "@material-ui/core/CardContent";
 import FadeLoader from "react-spinners/FadeLoader";
+import Modal from "@material-ui/core/Modal";
+import Backdrop from "@material-ui/core/Backdrop";
+import Fade from "@material-ui/core/Fade";
 import { css } from "@emotion/react";
 import { useAlert } from "react-alert";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
     container: {
         display: "grid",
         paddingTop: "100px",
@@ -39,7 +42,18 @@ const useStyles = makeStyles({
     buttons: {
         marginTop: "4vh",
     },
-});
+    modal: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    paper: {
+        backgroundColor: theme.palette.background.paper,
+        border: "2px solid #000",
+        boxShadow: theme.shadows[5],
+        padding: theme.spacing(2, 4, 3),
+    },
+}));
 
 const RoundedButton = withStyles((theme) => ({
     root: {
@@ -52,6 +66,8 @@ const RoundedButton = withStyles((theme) => ({
 export default function BookPage({ match, location, id }) {
     const classes = useStyles();
     const [book, setBook] = useState({});
+    const [open, setOpen] = useState(false);
+    const [borrow, setBorrow] = useState(false);
     const [loading, setLoading] = useState(true);
     const alert = useAlert();
 
@@ -69,6 +85,14 @@ export default function BookPage({ match, location, id }) {
                 console.log(err);
             });
     }, []);
+
+    const handleOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
 
     const handleBorrow = (bookID, memberID) => {
         //console.log(localStorage.getItem("token"));
@@ -89,6 +113,7 @@ export default function BookPage({ match, location, id }) {
             .then((res) => {
                 console.log(res);
                 console.log(res.data);
+                handleOpen();
             })
             .catch((err) => {
                 if (
@@ -121,6 +146,7 @@ export default function BookPage({ match, location, id }) {
             .then((res) => {
                 console.log(res);
                 console.log(res.data);
+                handleOpen();
             })
             .catch((err) => {
                 if (
@@ -156,6 +182,7 @@ export default function BookPage({ match, location, id }) {
                                 src={book.thumbnailUrl}
                                 alt="Book Cover"
                                 className={classes.cover}
+                                onClick={handleOpen}
                             />
                             <CardContent className={classes.bookInfo}>
                                 <Typography variant="h3" align="left">
@@ -175,12 +202,13 @@ export default function BookPage({ match, location, id }) {
                                         color="primary"
                                         href="#"
                                         size="large"
-                                        onClick={() =>
+                                        onClick={() => {
+                                            setBorrow(true);
                                             handleBorrow(
                                                 match.params.bookID,
                                                 id
-                                            )
-                                        }
+                                            );
+                                        }}
                                     >
                                         Borrow
                                     </RoundedButton>
@@ -191,12 +219,13 @@ export default function BookPage({ match, location, id }) {
                                         color="primary"
                                         href="#"
                                         size="large"
-                                        onClick={() =>
+                                        onClick={() => {
+                                            setBorrow(false);
                                             handleReserve(
                                                 match.params.bookID,
                                                 id
-                                            )
-                                        }
+                                            );
+                                        }}
                                     >
                                         Reserve
                                     </RoundedButton>
@@ -219,6 +248,29 @@ export default function BookPage({ match, location, id }) {
                                 : book.shortDescription}
                         </Typography>
                     </Container>
+
+                    <Modal
+                        aria-labelledby="transition-modal-title"
+                        aria-describedby="transition-modal-description"
+                        className={classes.modal}
+                        open={open}
+                        onClose={handleClose}
+                        closeAfterTransition
+                        BackdropComponent={Backdrop}
+                        BackdropProps={{
+                            timeout: 500,
+                        }}
+                    >
+                        <Fade in={open}>
+                            <div className={classes.paper}>
+                                <h2 id="transition-modal-title">
+                                    {borrow
+                                        ? "Book Succesfully borrowed"
+                                        : "Book succesfully reserved"}
+                                </h2>
+                            </div>
+                        </Fade>
+                    </Modal>
                 </main>
             )}
         </React.Fragment>

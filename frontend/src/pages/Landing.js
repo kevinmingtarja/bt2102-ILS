@@ -45,7 +45,9 @@ export default function Landing() {
             <Grid container xs={6} className={classes.left} alignItems="center">
                 <Box pr={10}>
                     <Box mb={2} mt={-9}>
-                        <Typography variant="h2">Welcome to ILS</Typography>
+                        <Typography variant="h2">
+                            BT2102 Assignment 1
+                        </Typography>
                     </Box>
                     <Box mb={6}>
                         <Typography variant="h6">

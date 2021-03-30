@@ -216,17 +216,18 @@ def reserveBook(request):
         except ObjectDoesNotExist:
             # checking if reserved
             try:
-                reservationStatus = Reservation.objects.get(bookid = book).reservationstatus
+                reservationStatus = Reservation.objects.get(bookid = book)
                 if reservationStatus:
                     return Response({"res": "Book is currently reserved. User is unable to reserve the book."}, status=status.HTTP_403_FORBIDDEN)
             except ObjectDoesNotExist:
                 # checking if available
                 if Loan.objects.get(bookid = book).availabilitystatus:
                     return Response({"res": "Book is currently available. Please proceed to borrow the book instead."}, status=status.HTTP_403_FORBIDDEN)
-    
+                if Loan.objects.get(bookid = book).borrowerid == member:
+                    return Response({"res": "You are currently borrowing this book."}, status=status.HTTP_403_FORBIDDEN)
                 # reserving the book
                 else:
-                    reservation = Reservation(bookid = bookid, reserverid= memberid)
+                    reservation = Reservation(bookid = book, reserverid= member)
                     reservation.save()
                 
                     reservation_serializer = ReservationSerializer(reservation)
@@ -237,12 +238,13 @@ def reserveBook(request):
 @api_view(['DELETE'])
 def cancelReservation(request, bookid, memberid):
     member = Memberuser.objects.get(user_id = memberid)
-    book = Book.objects.get(_id = bookid)
+    book = Book.objects.get(bookid = bookid)
     #gets the reservation tuple/entry 
     try:
         reservation = Reservation.objects.filter(reserverid=member, bookid=book).first()
         #deletes the entire reservation entry from Reservation table 
         reservation.delete()
+        return Response({"res" : "Reservation Succesfully Cancelled"}, status = status.HTTP_200_OK)
         # from the user's input of the BookID, set status to false in Book table 
     except :
         return Response({"res" : "User does not have reservation for this book"}, status = status.HTTP_404_NOT_FOUND)
@@ -254,19 +256,20 @@ def convertToBorrow(request):
     memberid = data['memberid']
 
 
-    book = Loan.objects.get(bookid = bookid)
+    loan = Loan.objects.get(bookid = bookid)
+    book = Book.objects.get(bookid = bookid)
     member = Memberuser.objects.get(user_id = memberid)
 
-    if not book.borrowerid:
+    if not loan.borrowerid:
         reservation = Reservation.objects.filter(reserverid = member, bookid = book).first()
         #set availability status to False
-        book.availabilitystatus = False
-        book.borrowerid = member
-        book.expectedduedate = datetime.date.today() + datetime.timedelta(days=30)
-        book.save(update_fields=['availabilitystatus','borrowerid','expectedduedate'])
+        loan.availabilitystatus = False
+        loan.borrowerid = member
+        loan.expectedduedate = datetime.date.today() + datetime.timedelta(days=30)
+        loan.save(update_fields=['availabilitystatus','borrowerid','expectedduedate'])
         #delete reservation
         reservation.delete()
-        serializer = LoanSerializer(book)
+        serializer = LoanSerializer(loan)
         return Response(serializer.data)
     else:
         return Response({"res": "This Book has not been returned yet by the previous borrower"}, status = status.HTTP_403_FORBIDDEN)
@@ -277,14 +280,13 @@ def renewBook(request):
     data = request.data
     bookid = data['bookid']
     memberid = data['memberid']
-
-
-    currentBook =  Loan.objects.get(bookid = bookid)
+    book = Book.objects.get(bookid = bookid)
+    currentBook = Loan.objects.get(bookid = bookid)
     member = Memberuser.objects.get(user_id = memberid)
 
     #check if book has a pending reservation
     try:
-        reservation = Reservation.objects.get(bookid = currentBook)
+        reservation = Reservation.objects.get(bookid = book)
         return Response({"res": "Unable to renew as there is a pending reservation by another user"}, status=status.HTTP_403_FORBIDDEN)
     except ObjectDoesNotExist:
         if Loan.objects.filter(borrowerid = member).count() >= 4:
@@ -411,9 +413,9 @@ def pay_fine(request):
     
     #payment validation
     payment = Payment(memberid = member, finememberid = memberInFine, paymentmethod = paymentmethod )
-    payment.save()
+    #payment.save()
     #delete fine records
-    fine.delete()
+    #fine.delete()
     serializer = PaymentSerializer(payment)
     return Response(serializer.data)
 

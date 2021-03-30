@@ -12,6 +12,7 @@ import { css } from "@emotion/react";
 import { useAlert } from "react-alert";
 import AdminBorrowedBookList from "../components/AdminBorrowedBookList";
 import AdminReservedBookList from "../components/AdminReservedBookList";
+import AdminFinesList from "../components/AdminFinesList";
 
 import {
     Container,
@@ -33,6 +34,12 @@ const useStyles = makeStyles({
     profile: {
         justifySelf: "start",
         display: "flex",
+    },
+    info: {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        margin: "2rem",
     },
 });
 
@@ -327,9 +334,17 @@ export default function Profile(props) {
                                             );
                                         })}
                                     </div>
-                                    {fines.map((fine) => {
-                                        return fine.amount;
-                                    })}
+                                    <div>
+                                        <h1>Unpaid Fines</h1>
+                                        {fines.map((fine) => {
+                                            return (
+                                                <AdminFinesList
+                                                    id={fine.memberid}
+                                                    fine={fine.amount}
+                                                />
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             )}
                         </>
