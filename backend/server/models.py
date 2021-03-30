@@ -80,7 +80,7 @@ class Reservation(models.Model):
 
 class Fine(models.Model):
     memberid = models.ForeignKey(Memberuser,db_column='memberID', primary_key=True,on_delete = models.CASCADE)  # Field name made lowercase.
-    amount = models.DecimalField(max_digits=10, decimal_places=0)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default = 0.00)
 
     class Meta:
         managed = False
@@ -92,8 +92,8 @@ class Payment(models.Model):
         ('DEBIT CARD', 'Debit Card'),
         ('CREDIT CARD', 'Credit Card'),
         ], default = None) 
-    finememberid = models.ForeignKey(Fine, models.DO_NOTHING, db_column='fineMemberID')  # Field name made lowercase.
-    memberid = models.ForeignKey(Memberuser, models.DO_NOTHING, db_column='MemberID')  # Field name made lowercase.
+    finememberid = models.ForeignKey(Fine, models.CASCADE, db_column='fineMemberID')  # Field name made lowercase.
+    memberid = models.ForeignKey(Memberuser, models.CASCADE, db_column='MemberID')  # Field name made lowercase.
 
     class Meta:
         managed = False
