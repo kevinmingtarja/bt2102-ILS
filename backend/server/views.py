@@ -187,10 +187,10 @@ def returnBook(request): #not sure whether needs to take input memberid or use r
     memberid = data['memberid']
     member = Memberuser.objects.get(user_id = memberid)
     book = Book.objects.get(bookid = bookid)
-    try: #check whether user has fine or not
-        fine = Fine.objects.get(memberid = member)
+    fine = Fine.objects.get(memberid = member)
+    if fine.amount > 0:
         return Response({"res": "User is unable to return the book. User has to pay the fines first"}, status=status.HTTP_403_FORBIDDEN)
-    except ObjectDoesNotExist:
+    else:
         # returning the book
         currentBook = get_object_or_404(Loan, bookid = book)
         currentBook.borrowerid = None
@@ -210,11 +210,10 @@ def reserveBook(request):
     book = Book.objects.get(bookid = bookid)
     if request.user.is_authenticated:
         # checking for unpaid fines
-        try:
-            fine = Fine.objects.get(memberid =  member)
+        fine = Fine.objects.get(memberid =  member)
+        if fine.amount > 0:
             return Response({"res": "User is unable to reserve the book. User has to pay the fines first."}, status=status.HTTP_403_FORBIDDEN)
-        except ObjectDoesNotExist:
-            # checking if reserved
+        else:
             try:
                 reservationStatus = Reservation.objects.get(bookid = book)
                 if reservationStatus:
@@ -256,11 +255,11 @@ def convertToBorrow(request):
     memberid = data['memberid']
 
 
-    loan = Loan.objects.get(bookid = bookid)
     book = Book.objects.get(bookid = bookid)
     member = Memberuser.objects.get(user_id = memberid)
+    loan = Loan.objects.get(bookid = book)
 
-    if not loan.borrowerid:
+    if not loan.borrowerid: #check whether it's null or not
         reservation = Reservation.objects.filter(reserverid = member, bookid = book).first()
         #set availability status to False
         loan.availabilitystatus = False
@@ -283,23 +282,27 @@ def renewBook(request):
     book = Book.objects.get(bookid = bookid)
     currentBook = Loan.objects.get(bookid = bookid)
     member = Memberuser.objects.get(user_id = memberid)
-
-    #check if book has a pending reservation
-    try:
-        reservation = Reservation.objects.get(bookid = book)
-        return Response({"res": "Unable to renew as there is a pending reservation by another user"}, status=status.HTTP_403_FORBIDDEN)
-    except ObjectDoesNotExist:
-        if Loan.objects.filter(borrowerid = member).count() >= 4:
-            return Response({"res": "Unable to renew as user has reached the limit of number of books borrowed"}, status=status.HTTP_403_FORBIDDEN)
-        else:
-            #if no pending reservation, allow user to borrow book again
-            currentBook.borrowerid = member
-            currentBook.availabilitystatus = False
-            newDueDate = currentBook.expectedduedate + datetime.timedelta(days=30)
-            currentBook.expectedduedate = newDueDate
-            currentBook.save(update_fields=['borrowerid','availabilitystatus','expectedduedate'])
-            serializer = LoanSerializer(currentBook)
-            return Response(serializer.data) 
+    #check if user has unpaid fine
+    fine = Fine.objects.get(memberid = member)
+    if fine.amount > 0:
+        return Response({"res": "User is unable to reserve the book. User has to pay the fines first."}, status=status.HTTP_403_FORBIDDEN)
+        #check if book has a pending reservation
+    else:
+        try:
+            reservation = Reservation.objects.get(bookid = book)
+            return Response({"res": "Unable to renew as there is a pending reservation by another user"}, status=status.HTTP_403_FORBIDDEN)
+        except ObjectDoesNotExist:
+            if Loan.objects.filter(borrowerid = member).count() >= 4:
+                return Response({"res": "Unable to renew as user has reached the limit of number of books borrowed"}, status=status.HTTP_403_FORBIDDEN)
+            else:
+                #if no pending reservation, allow user to borrow book again
+                currentBook.borrowerid = member
+                currentBook.availabilitystatus = False
+                newDueDate = currentBook.expectedduedate + datetime.timedelta(days=30)
+                currentBook.expectedduedate = newDueDate
+                currentBook.save(update_fields=['borrowerid','availabilitystatus','expectedduedate'])
+                serializer = LoanSerializer(currentBook)
+                return Response(serializer.data) 
         
 client = MongoClient('localhost',port = 27017)
 db = client['library-django-db']
@@ -366,24 +369,19 @@ def calculateFine(request) :
                     fine += (currentDate - book.expectedduedate).days
                 else:
                     continue
-            if fine > 0:
-                try:        #Check whether this particular member has already had a previous record in Fine
-                    record = Fine.objects.get(memberid = member)
-                    record.amount = fine
-                    record.save()
-                    instances.append(record)
-                except ObjectDoesNotExist:
-                     newRecord = Fine(memberid = member, amount = fine)
-                     newRecord.save()
-                     instances.append(newRecord)
-            try:
-                reservations = Reservation.objects.filter(reserverid = member)
-                #deletes the entire reservation entry from Reservation table 
-                for reservation in reservations:
-                    reservation.delete()
+            record = Fine.objects.get(memberid = member)
+            record.amount = fine
+            record.save()
+            instances.append(record)
 
-            except ObjectDoesNotExist:
-                continue
+        try:
+            reservations = Reservation.objects.filter(reserverid = member)
+            #deletes the entire reservation entry from Reservation table 
+            for reservation in reservations:
+                reservation.delete()
+
+        except ObjectDoesNotExist:
+            continue
         else:
             continue
     if len(instances) > 0:
@@ -393,11 +391,11 @@ def calculateFine(request) :
 @api_view(['GET'])
 def get_fine(request, memberid):
     member = Memberuser.objects.get(user_id = memberid)
-    try:
-        fine = Fine.objects.get(memberid = member)
-        amount = fine.amount
+    fine = Fine.objects.get(memberid = member)
+    amount = fine.amount
+    if amount > 0:
         return Response({"res": amount}, status=status.HTTP_200_OK)
-    except:
+    else:
         return Response({"res": "No Fines"}, status=status.HTTP_200_OK)
 
 
@@ -413,11 +411,14 @@ def pay_fine(request):
     
     #payment validation
     payment = Payment(memberid = member, finememberid = memberInFine, paymentmethod = paymentmethod )
-    #payment.save()
-    #delete fine records
-    #fine.delete()
+    payment.save()
+    #set fine amount to zero
+    fine.amount = 0
+    fine.save()
+    fine_serializer = FineSerializer(fine)
     serializer = PaymentSerializer(payment)
-    return Response(serializer.data)
+    return Response({'fine' : fine_serializer, 
+                     'payment' : serializer.data})
 
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.admin.views.decorators import staff_member_required
@@ -450,4 +451,4 @@ class UnpaidFinesByAdminListView(generics.ListAPIView):
     raise_exception = True
     paginate_by = 10
     def get_queryset(request):
-        return Fine.objects.all()
+        return Fine.objects.filter(amount > 0).order_by('amount')
