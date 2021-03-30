@@ -5,6 +5,7 @@ admin.site.register(Book)
 admin.site.register(Book_Instance)
 admin.site.register(Reservation)
 admin.site.register(Fine)
+admin.site.register(Loan)
 
 #current books reservation --> just refer to reservation table
 class ReservationAdmin(admin.ModelAdmin):

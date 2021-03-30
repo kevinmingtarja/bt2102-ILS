@@ -9,55 +9,101 @@ from django.db import models
 from django_mysql.models import EnumField
 from django.contrib.auth.models import User
 
+class Adminuser(models.Model):
+    class params:
+        db = 'default'
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
+    adminpassword = models.CharField(db_column='adminPassword', max_length=30)  # Field name made lowercase.
+
+    class Meta:
+        db_table = 'adminuser'
+
+
+class Memberuser(models.Model):
+    class params:
+        db = 'default'
+
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
+    username = models.CharField(db_column='username', max_length=50)  # Field name made lowercase
+    memberpassword = models.CharField(db_column='memberPassword', max_length=30)  # Field name made lowercase.
+
+    def __str__(self):
+        return self.username
+
+    class Meta:
+        db_table = 'memberuser'
+
 
 class Book(models.Model):
+    bookid = models.IntegerField(db_column='_id', primary_key=True)  # Field renamed because it started with '_'.
+    title = models.CharField(max_length=200)
+    isbn = models.CharField(max_length=200)
+    authors = models.CharField(max_length=200)
+    pagecount = models.IntegerField(db_column='pageCount')  # Field name made lowercase.
+    publisheddate = models.CharField(db_column='publishedDate', max_length=200, blank=True, null=True)  # Field name made lowercase.
+    categories = models.CharField(max_length=200, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'book'
+
+
+class Loan(models.Model):
     class params:
         db = 'default'
 
     bookid = models.IntegerField(db_column='_id', primary_key=True)  # Field name made lowercase.
-    title = models.CharField(db_column='title', max_length=100)  # Field name made lowercase.
-    borrowerid = models.ForeignKey(User,  on_delete = models.SET_NULL, db_column='BorrowerID', default = None, blank = True, null=True)  # Field name made lowercase.
+    borrowerid = models.ForeignKey(Memberuser,  on_delete = models.SET_NULL, db_column='BorrowerID', default = None,blank = True, null=True)  # Field name made lowercase.
     availabilitystatus = models.BooleanField(db_column='availabilityStatus', default = True)  # Field name made lowercase
     expectedduedate = models.DateField(db_column='expectedDueDate', blank= True,null=True, default = None)  # Field name made lowercase.
-    reservationstatus = models.BooleanField(db_column='reservationStatus', default = False)  # Field name made lowercase.
 
     class Meta:
-        db_table = 'book'
-
-
-
-class Fine(models.Model):
-    class params:
-        db = 'default'
-
-    memberid = models.ForeignKey(User, on_delete = models.CASCADE, db_column='memberID')  # Field name made lowercase.
-    paymentno = models.AutoField(db_column='paymentNo', primary_key = True)  # Field name made lowercase.
-    amount = models.DecimalField(max_digits=10, decimal_places=0)
-    paymentmethod = EnumField(db_column='paymentMethod', blank = True, null=True, choices = [
-        ('DEBIT CARD', 'Debit Card'),
-        ('CREDIT CARD', 'Credit Card'),
-        ], default = None)  # Field name made lowercase.
-    paymentstatus = EnumField(db_column='paymentStatus', choices =[
-        ("Not Approved", "Not Approved"),
-        ("Approved", "Approved"),
-        ], default = 'Not Approved')# Field name made lowercase.
-
-    class Meta:
-        db_table = 'fine'
-
-
+        db_table = 'loan'
 
 
 class Reservation(models.Model):
-    class params:
-        db = 'default'
-
-    reserverid = models.ForeignKey(User, on_delete = models.CASCADE, db_column='reserverID')  # Field name made lowercase.
-    bookid = models.ForeignKey(Book, on_delete = models.CASCADE, db_column='BookID')  # Field name made lowercase.
-    reservationno = models.IntegerField(db_column='ReservationNo', primary_key= True)  # Field name made lowercase.
+    reserverid = models.IntegerField(db_column='reserverID', primary_key=True)  # Field name made lowercase.
+    bookid = models.IntegerField(db_column='BookID')  # Field name made lowercase.
 
     class Meta:
+        managed = False
         db_table = 'reservation'
+        unique_together = (('reserverid', 'bookid'),)
+
+class Fine(models.Model):
+    memberid = models.IntegerField(db_column='memberID', primary_key=True)  # Field name made lowercase.
+    amount = models.DecimalField(max_digits=10, decimal_places=0)
+
+    class Meta:
+        managed = False
+        db_table = 'fine'
+
+class Payment(models.Model):
+    paymentno = models.AutoField(db_column='paymentNo', primary_key=True)  # Field name made lowercase.
+    paymentmethod = EnumField(db_column='paymentMethod', blank = True, null=True, choices = [
+        ('DEBIT CARD', 'Debit Card'),
+        ('CREDIT CARD', 'Credit Card'),
+        ], default = None) 
+    finememberid = models.ForeignKey(Fine, models.DO_NOTHING, db_column='fineMemberID')  # Field name made lowercase.
+    memberid = models.ForeignKey(Memberuser, models.DO_NOTHING, db_column='MemberID')  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'payment'
+
+
+
+
+
+
 
 
 from djongo import models
@@ -82,4 +128,4 @@ class Book_Instance(models.Model):
     longDescription = models.CharField(max_length = 2000, blank = True)
     status = models.CharField(max_length = 10, choices = Book_Status)
     authors = models.CharField(max_length=100, blank=False)
-    categories = models.CharField(max_length=100, blank=False)
+    categories = model
