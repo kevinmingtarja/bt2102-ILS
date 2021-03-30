@@ -33,6 +33,7 @@ const useStyles = makeStyles({
 export default function BookCard(props) {
     const classes = useStyles();
     const [bookData, setBookData] = useState({});
+    const [loanData, setLoanData] = useState({});
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -44,13 +45,21 @@ export default function BookCard(props) {
             });
     }, []);
 
+    useEffect(() => {
+        axios
+            .get(`http://localhost:8000/server/loandata/${props.id}/`)
+            .then((res) => {
+                setLoanData(res.data);
+            });
+    }, []);
+
     return (
         <Card className={classes.root} elevation="0">
             <div className={classes.cover}>
                 <img src={props.url} alt="Book Cover" className={classes.img} />
             </div>
             <CardContent className={classes.info}>
-                {bookData.availabilitystatus ? (
+                {loanData.availabilitystatus ? (
                     <Typography
                         variant="h6"
                         align="left"
@@ -69,9 +78,9 @@ export default function BookCard(props) {
                 )}
 
                 <Typography variant="h6" align="left" color="textSecondary">
-                    {bookData.availabilitystatus
+                    {loanData.availabilitystatus
                         ? null
-                        : "Due Date: " + bookData.expectedduedate}
+                        : "Due Date: " + loanData.expectedduedate}
                 </Typography>
                 <Typography variant="h6" align="left">
                     {props.title}

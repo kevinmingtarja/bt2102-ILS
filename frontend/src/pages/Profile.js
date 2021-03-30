@@ -11,6 +11,7 @@ import FadeLoader from "react-spinners/FadeLoader";
 import { css } from "@emotion/react";
 import { useAlert } from "react-alert";
 import AdminBorrowedBookList from "../components/AdminBorrowedBookList";
+import AdminReservedBookList from "../components/AdminReservedBookList";
 
 import {
     Container,
@@ -37,7 +38,7 @@ const useStyles = makeStyles({
 
 export default function Profile(props) {
     const classes = useStyles();
-    const [data, setData] = useState(null);
+    const [data, setData] = useState({});
     const [reserved, setReserved] = useState([]);
     const [borrowed, setBorrowed] = useState([]);
     const [fines, setFines] = useState([]);
@@ -305,7 +306,8 @@ export default function Profile(props) {
                             ) : (
                                 <div>
                                     <div>
-                                        {reserved.map((book) => {
+                                        <h1>Borrowed Books</h1>
+                                        {borrowed.map((book) => {
                                             return (
                                                 <AdminBorrowedBookList
                                                     id={book.bookid}
@@ -315,9 +317,10 @@ export default function Profile(props) {
                                         })}
                                     </div>
                                     <div>
-                                        {borrowed.map((book) => {
+                                        <h1>Reserved Books</h1>
+                                        {reserved.map((book) => {
                                             return (
-                                                <AdminBorrowedBookList
+                                                <AdminReservedBookList
                                                     id={book.bookid}
                                                     book={book}
                                                 />

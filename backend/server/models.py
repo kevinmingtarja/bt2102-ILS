@@ -1,10 +1,10 @@
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#   * Rearrange models' order
-#   * Make sure each model has one field with primary_key=True
-#   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
-#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
-# Feel free to rename the models, but don't rename db_table values or field names.
+# # This is an auto-generated Django model module.
+# # You'll have to do the following manually to clean this up:
+# #   * Rearrange models' order
+# #   * Make sure each model has one field with primary_key=True
+# #   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
+# #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
+# # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 from django_mysql.models import EnumField
 from django.contrib.auth.models import User
@@ -33,7 +33,7 @@ class Memberuser(models.Model):
         primary_key=True,
     )
     username = models.CharField(db_column='username', max_length=50)  # Field name made lowercase
-    memberpassword = models.CharField(db_column='memberPassword', max_length=30)  # Field name made lowercase.
+    memberpassword = models.CharField(db_column='memberPassword', max_length=300)  # Field name made lowercase.
 
     def __str__(self):
         return self.username
@@ -60,7 +60,7 @@ class Loan(models.Model):
     class params:
         db = 'default'
 
-    bookid = models.IntegerField(db_column='_id', primary_key=True)  # Field name made lowercase.
+    bookid = models.ForeignKey(Book,db_column='_id', primary_key=True, on_delete = models.CASCADE)  # Field name made lowercase.
     borrowerid = models.ForeignKey(Memberuser,  on_delete = models.SET_NULL, db_column='BorrowerID', default = None,blank = True, null=True)  # Field name made lowercase.
     availabilitystatus = models.BooleanField(db_column='availabilityStatus', default = True)  # Field name made lowercase
     expectedduedate = models.DateField(db_column='expectedDueDate', blank= True,null=True, default = None)  # Field name made lowercase.
@@ -70,8 +70,8 @@ class Loan(models.Model):
 
 
 class Reservation(models.Model):
-    reserverid = models.IntegerField(db_column='reserverID', primary_key=True)  # Field name made lowercase.
-    bookid = models.IntegerField(db_column='BookID')  # Field name made lowercase.
+    reserverid = models.ForeignKey(Memberuser,db_column='reserverID', primary_key=True,on_delete = models.CASCADE)  # Field name made lowercase.
+    bookid = models.ForeignKey(Book,db_column='BookID',on_delete = models.CASCADE)  # Field name made lowercase.
 
     class Meta:
         managed = False
@@ -79,7 +79,7 @@ class Reservation(models.Model):
         unique_together = (('reserverid', 'bookid'),)
 
 class Fine(models.Model):
-    memberid = models.IntegerField(db_column='memberID', primary_key=True)  # Field name made lowercase.
+    memberid = models.ForeignKey(Memberuser,db_column='memberID', primary_key=True,on_delete = models.CASCADE)  # Field name made lowercase.
     amount = models.DecimalField(max_digits=10, decimal_places=0)
 
     class Meta:
@@ -98,12 +98,6 @@ class Payment(models.Model):
     class Meta:
         managed = False
         db_table = 'payment'
-
-
-
-
-
-
 
 
 from djongo import models
@@ -128,4 +122,4 @@ class Book_Instance(models.Model):
     longDescription = models.CharField(max_length = 2000, blank = True)
     status = models.CharField(max_length = 10, choices = Book_Status)
     authors = models.CharField(max_length=100, blank=False)
-    categories = model
+    categories = models.CharField(max_length=100, blank=False)
