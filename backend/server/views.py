@@ -189,7 +189,7 @@ def returnBook(request): #not sure whether needs to take input memberid or use r
     book = Book.objects.get(bookid = bookid)
     fine = Fine.objects.get(memberid = member)
     if fine.amount > 0:
-        return Response({"res": "User is unable to return the book. User has to pay the fines first"}, status=status.HTTP_403_FORBIDDEN)
+        return Response({"res": "Unable to return book as you still have unpaid fines."}, status=status.HTTP_403_FORBIDDEN)
     else:
         # returning the book
         currentBook = get_object_or_404(Loan, bookid = book)
@@ -285,7 +285,7 @@ def renewBook(request):
     #check if user has unpaid fine
     fine = Fine.objects.get(memberid = member)
     if fine.amount > 0:
-        return Response({"res": "User is unable to reserve the book. User has to pay the fines first."}, status=status.HTTP_403_FORBIDDEN)
+        return Response({"res": "Unable to extend as you have unpaid fines."}, status=status.HTTP_403_FORBIDDEN)
         #check if book has a pending reservation
     else:
         try:
@@ -388,15 +388,19 @@ def calculateFine(request) :
         serializer = FineSerializer(instances, many = True)
         return Response(serializer.data)
     return Response({"res": "No Fine Recorded"}) #not sure what to return if Nothing changes
+
 @api_view(['GET'])
 def get_fine(request, memberid):
     member = Memberuser.objects.get(user_id = memberid)
     fine = Fine.objects.get(memberid = member)
     amount = fine.amount
     if amount > 0:
-        return Response({"res": amount}, status=status.HTTP_200_OK)
+        return Response({
+            "memberid": memberid,
+            "res": amount}, status=status.HTTP_200_OK)
     else:
-        return Response({"res": "No Fines"}, status=status.HTTP_200_OK)
+        return Response({"memberid": memberid, 
+        "res": "No Fines"}, status=status.HTTP_200_OK)
 
 
 #pay fine, only show this for member who has fine
@@ -415,9 +419,9 @@ def pay_fine(request):
     #set fine amount to zero
     fine.amount = 0
     fine.save()
-    fine_serializer = FineSerializer(fine)
+    #fine_serializer = FineSerializer(fine)
     serializer = PaymentSerializer(payment)
-    return Response({'fine' : fine_serializer, 
+    return Response({'fine' : fine.amount, 
                      'payment' : serializer.data})
 
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
