@@ -25,4 +25,5 @@ urlpatterns = [
     path('adminreservedbooks/', ReservedBooksByAdminListView.as_view()),
     path('adminborrowedbooks/', LoanedBooksByAdminListView.as_view()),
     path('adminunpaidfines/', UnpaidFinesByAdminListView.as_view()),
+    path('calculatefine/', calculateFine),
 ]
